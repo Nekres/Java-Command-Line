@@ -5,7 +5,12 @@
  */
 package jlc.commands;
 
+import jlc.commands.impl.DirectoryTree;
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import jlc.commands.impl.ChangeDirectory;
+import jlc.exceptions.BadCommandArgumentException;
 
 /**
  *
@@ -13,16 +18,12 @@ import java.io.File;
  */
 public class CommandController {
     
-    public static void dir(String arg){
-        File file = new File(arg);
-        if (file.isDirectory())
-            for(File f : file.listFiles())
-                System.out.println(f.getName());
+    public static String invokeCommand(Command command) throws BadCommandArgumentException{
+        return command.invoke();
     }
-    public static void cd(String arg){
-        
-    }
-    public static void pwd(){
-        
+//    d
+    
+    public static void tree(String currentDir){
+       // DirectoryTree tree = new DirectoryTree(new File(currentDir));
     }
 }
