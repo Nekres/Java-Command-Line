@@ -5,11 +5,6 @@
  */
 package jlc.commands;
 
-import jlc.commands.impl.DirectoryTree;
-import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import jlc.commands.impl.ChangeDirectory;
 import jlc.exceptions.BadCommandArgumentException;
 
 /**
@@ -19,6 +14,7 @@ import jlc.exceptions.BadCommandArgumentException;
 public class CommandController {
     
     public static String invokeCommand(Command command) throws BadCommandArgumentException{
+    //    command.
         return command.invoke();
     }
 //    d
