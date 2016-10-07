@@ -18,7 +18,7 @@ import jlc.commands.Filter;
  * @author desolation
  */
 public class Dir implements Command{
-    private static final int ARG_AMOUNT = 1;
+    private static final int ARG_AMOUNT = 0;
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
     private final String currentDir;
     private String arg;

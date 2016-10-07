@@ -16,18 +16,24 @@ import jlc.exceptions.BadCommandArgumentException;
  */
 public class CommandFactory {
     
-    public static Command createCommand(Class<? extends Command> command, String currentDir, String arg) throws BadCommandArgumentException{
+    public static Command createCommand(Class<? extends Command> command, String currentDir, String[] arg) throws BadCommandArgumentException{
         if (command.equals(ChangeDirectory.class)){
-            return new ChangeDirectory(currentDir, arg);
+            if (arg.length == 1)
+            return new ChangeDirectory(currentDir, arg[0]);
+            else
+                throw new BadCommandArgumentException();
         }
         if (command.equals(Dir.class)) {
-            if (arg != null)
-                return new Dir(currentDir, arg);
+            if (arg.length == 1)
+                return new Dir(currentDir, arg[0]);
             else
                 return new Dir(currentDir);
         }
         if(command.equals(DirectoryTree.class)){
+            if (arg.length == 0)
             return new DirectoryTree(currentDir);
+            else
+                throw new BadCommandArgumentException();
         }
         throw new BadCommandArgumentException("комманда не найдена");
     }

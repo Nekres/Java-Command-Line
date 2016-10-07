@@ -16,7 +16,7 @@ import jlc.exceptions.BadCommandArgumentException;
 public class ChangeDirectory implements Command{
     private static final int ARG_AMOUNT = 1;
     private static final String SPLITTER = "/";
-    private static final String GET_BACK = "..";
+    private static final String RETURN = "..";
     private final String currentDir;
     private final String arg;
 
@@ -29,7 +29,7 @@ public class ChangeDirectory implements Command{
     public String invoke() throws BadCommandArgumentException{
         if (arg == null)
             throw new BadCommandArgumentException("no args");
-        if (arg.equals(GET_BACK) && currentDir.split(SPLITTER).length > 1) {     
+        if (arg.equals(RETURN) && currentDir.split(SPLITTER).length > 1) {     
             String result = "";
             for (int i = 1; i < currentDir.split(SPLITTER).length - 1; i++) {
                 result += SPLITTER + currentDir.split(SPLITTER)[i];

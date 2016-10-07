@@ -10,8 +10,6 @@ import java.util.Arrays;
 /**
  *
  * @author desolation
- * @param <A>
- * @param <B>
  */
 public class Holder {
     public final Class command;

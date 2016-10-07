@@ -23,13 +23,14 @@ public class ProcessOutputReader implements Runnable{
 
     @Override
     public void run() {
-        try{
+        try {
             InputStreamReader isr = new InputStreamReader(is);
             BufferedReader br = new BufferedReader(isr);
             String line;
-            while((line = br.readLine()) != null)
+            while ((line = br.readLine()) != null) {
                 System.out.println(line);
-        }catch(IOException e){
+            }
+        } catch (IOException e) {
         }
     }
     

@@ -8,7 +8,6 @@ package jlc;
 import java.io.File;
 import java.util.*;
 import jlc.commands.Command;
-import jlc.commands.CommandController;
 import jlc.commands.CommandFactory;
 import jlc.commands.impl.ChangeDirectory;
 import jlc.commands.impl.Dir;
@@ -41,20 +40,13 @@ public class JLC {
             System.out.print(currentDir + ":");
             String command = SCAN.nextLine();
             String arr[] = command.split(" ");
-            analyze(settings,arr);
+            List<Holder> commandList = analyze(settings,arr);
             try{
-            for (String s : settings.keySet()) {
-                if (s.equals(arr[0])) {
-                    if (arr.length == 2) {
-                        Command c = CommandFactory.createCommand(settings.get(s), currentDir, arr[1]);
-                        currentDir = CommandController.invokeCommand(c);
-                    } else {
-                        Command c = CommandFactory.createCommand(settings.get(s), currentDir, null);
-                        currentDir = CommandController.invokeCommand(c);
-                    }
-                    success = true;
+                if(commandList.size() == 1){
+                    Command c = CommandFactory.createCommand(commandList.get(0).command, currentDir, commandList.get(0).arg);
+                    currentDir = Command.execute(c);
                 }
-            }
+                    success = true;
             }catch(BadCommandArgumentException e){
                 success = false;
             }
@@ -64,7 +56,7 @@ public class JLC {
             success = false;
         }
     }
-    public static HashMap<Command, String[]> analyze(HashMap<String, Class<? extends Command>> settings,String[] input) throws BadCommandArgumentException{
+    public static List<Holder> analyze(HashMap<String, Class<? extends Command>> settings,String[] input) throws BadCommandArgumentException{
         String or = "||";
         String and = "&&";
         List<Holder> list = new ArrayList<>();
@@ -73,7 +65,7 @@ public class JLC {
         }
         Class<? extends Command> c = null;
         int temp = 0, mark = 0;
-        boolean found = false,next = false;
+        boolean next = false;
         for (int i = 0; i < input.length; i++) {
             for (String ks : settings.keySet()) {
                 if (input[i].equals(ks)) {
@@ -90,13 +82,12 @@ public class JLC {
                 list.add(new Holder(c,Arrays.copyOfRange(input, mark+1, temp)));
             }
             next = false;
-            found = false;
             temp++;
         }
         for (Holder h : list) {
             System.out.println(h);
         }
-        return null;
+        return list;
     }
 
 }
