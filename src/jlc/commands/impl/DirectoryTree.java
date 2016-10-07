@@ -6,8 +6,7 @@
 package jlc.commands.impl;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -16,6 +15,7 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class DirectoryTree implements Command{
+    public static final int ARG_AMOUNT = 0;
     private static int inline = 0;
     private final String currentDir;
 
@@ -55,6 +55,11 @@ public class DirectoryTree implements Command{
     @Override
     public String call() throws Exception {
         return this.invoke();
+    }
+
+    @Override
+    public int argsAmount() {
+        return ARG_AMOUNT;
     }
 
     

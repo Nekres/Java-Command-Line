@@ -14,6 +14,7 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class ChangeDirectory implements Command{
+    private static final int ARG_AMOUNT = 1;
     private static final String SPLITTER = "/";
     private static final String GET_BACK = "..";
     private final String currentDir;
@@ -46,6 +47,11 @@ public class ChangeDirectory implements Command{
     @Override
     public String call() throws Exception {
         return this.invoke();
+    }
+
+    @Override
+    public int argsAmount() {
+        return ARG_AMOUNT;
     }
 
     

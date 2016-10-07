@@ -12,6 +12,8 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public interface Command extends Callable<String>{
+public interface Command extends Callable<String> {
     public String invoke() throws BadCommandArgumentException;//return currentDir if dir not changed
+    public int argsAmount();
+    
 }

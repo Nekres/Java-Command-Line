@@ -5,6 +5,7 @@
  */
 package jlc.commands;
 
+import java.util.List;
 import jlc.exceptions.BadCommandArgumentException;
 
 /**
@@ -16,6 +17,15 @@ public class CommandController {
     public static String invokeCommand(Command command) throws BadCommandArgumentException{
     //    command.
         return command.invoke();
+    }
+    public static String invokeCommand(List<Command> commands) throws BadCommandArgumentException{
+        String result = "";
+        if (commands.size() == 0)
+            throw new BadCommandArgumentException();
+        for (Command c : commands){
+            result = c.invoke();
+        }
+        return result;
     }
 //    d
     

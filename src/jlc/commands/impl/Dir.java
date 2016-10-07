@@ -8,11 +8,8 @@ package jlc.commands.impl;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.TimeZone;
+import java.text.*;
+import java.util.*;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
 
@@ -21,6 +18,7 @@ import jlc.commands.Filter;
  * @author desolation
  */
 public class Dir implements Command{
+    private static final int ARG_AMOUNT = 1;
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
     private final String currentDir;
     private String arg;
@@ -75,6 +73,11 @@ public class Dir implements Command{
         for(int i = 0; i < max-length;i++){
             System.out.print(" ");
         }
+    }
+
+    @Override
+    public int argsAmount() {
+        return ARG_AMOUNT;
     }
 
     

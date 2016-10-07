@@ -8,6 +8,7 @@ package jlc.commands;
 import jlc.commands.impl.ChangeDirectory;
 import jlc.commands.impl.Dir;
 import jlc.commands.impl.DirectoryTree;
+import jlc.exceptions.BadCommandArgumentException;
 
 /**
  *
@@ -15,7 +16,7 @@ import jlc.commands.impl.DirectoryTree;
  */
 public class CommandFactory {
     
-    public static Command createCommand(Class<? extends Command> command, String currentDir, String arg){
+    public static Command createCommand(Class<? extends Command> command, String currentDir, String arg) throws BadCommandArgumentException{
         if (command.equals(ChangeDirectory.class)){
             return new ChangeDirectory(currentDir, arg);
         }
@@ -28,6 +29,6 @@ public class CommandFactory {
         if(command.equals(DirectoryTree.class)){
             return new DirectoryTree(currentDir);
         }
-        return null;
+        throw new BadCommandArgumentException("комманда не найдена");
     }
 }

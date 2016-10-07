@@ -67,34 +67,34 @@ public class JLC {
     public static HashMap<Command, String[]> analyze(HashMap<String, Class<? extends Command>> settings,String[] input) throws BadCommandArgumentException{
         String or = "||";
         String and = "&&";
+        List<Holder> list = new ArrayList<>();
         if (!settings.containsKey(input[0])) {
             throw new BadCommandArgumentException("wrong command"); // если первый аргумент не комманда - нет смысла проверять всю строку.
         }
-        HashMap<Class<? extends Command>, String[]> commands = new HashMap<>();
         Class<? extends Command> c = null;
         int temp = 0, mark = 0;
-        for (String ks : settings.keySet()) {
-            for (int i = temp; i < input.length; i++) {
+        boolean found = false,next = false;
+        for (int i = 0; i < input.length; i++) {
+            for (String ks : settings.keySet()) {
                 if (input[i].equals(ks)) {
                     c = settings.get(ks);
                     mark = i;
-                    System.out.println("s");
-                    continue;
-                } else if (input[i] != or && input[i] != and) {
-                    temp++;
-                } else {
-                    c = null;
-                    System.out.println("s");
                     break;
                 }
             }
-            if (c != null) {
-                commands.put(c, Arrays.copyOfRange(input, mark, temp));
+            if (input[i].equals(or) || input[i].equals(and))
+                next = true;
+            if(c != null &&i == input.length-1)
+                list.add(new Holder(c,Arrays.copyOfRange(input, mark+1, input.length)));
+            else if ((c != null && next)) {
+                list.add(new Holder(c,Arrays.copyOfRange(input, mark+1, temp)));
             }
+            next = false;
+            found = false;
+            temp++;
         }
-        for (Class cc : commands.keySet()) {
-            System.out.println(cc.getName());
-            System.out.println(settings.get(cc));
+        for (Holder h : list) {
+            System.out.println(h);
         }
         return null;
     }
