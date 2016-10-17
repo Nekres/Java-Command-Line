@@ -48,7 +48,7 @@ public class Settings {
     public void setDirectoryTree(String directoryTree) {
         this.directoryTree = directoryTree;
     }
-    public static void setDefaultFile(File file) throws JAXBException{
+    public static void setDefault(File file) throws JAXBException{
         Settings s = new Settings();
         s.setChangeDirectory("cd");
         s.setDir("dir");

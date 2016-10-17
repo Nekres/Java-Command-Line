@@ -7,11 +7,8 @@ package jlc;
 
 import java.io.File;
 import java.util.*;
-import jlc.commands.Command;
-import jlc.commands.CommandFactory;
-import jlc.commands.impl.ChangeDirectory;
-import jlc.commands.impl.Dir;
-import jlc.commands.impl.DirectoryTree;
+import jlc.commands.*;
+import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.parse.impl.JAXBParser;
 
@@ -31,7 +28,7 @@ public class JLC {
     public static void main(String[] args) throws Exception {
         File file = new File("settings.xml");
         if(!file.exists()){
-            Settings.setDefaultFile(file);
+            Settings.setDefault(file);
             System.out.println("Run with default settings...");
         }
         Settings set = (Settings) new JAXBParser().getObject(new File("settings.xml"), Settings.class); //settings from "settings.xml" file
@@ -39,17 +36,23 @@ public class JLC {
         settings.put(set.getDir(), Dir.class);
         settings.put(set.getDirectoryTree(), DirectoryTree.class);
         settings.put(set.getChangeDirectory(), ChangeDirectory.class);
-        boolean running = true, success = false;
+        boolean running = true, daemon = false;
         System.out.println("Java command line.");
         while (running) {
             System.out.print(currentDir + ":");
-            String command = SCAN.nextLine();
+            String command = SCAN.nextLine().trim();
             String arr[] = command.split(" ");
             try{
                 List<Holder> commandList = analyze(settings,arr);
                 if(commandList.size() == 1){
                     Command c = CommandFactory.createCommand(commandList.get(0).command, currentDir, commandList.get(0).arg);
                     currentDir = Command.execute(c,false);
+                }
+                else{
+                    for(Holder h: commandList){
+                        Command c = CommandFactory.createCommand(h.command, currentDir, h.arg);
+                        currentDir = Command.execute(c,false);
+                    }
                 }
             }catch(BadCommandArgumentException e){
                 System.out.println(e.getMessage());
@@ -61,7 +64,7 @@ public class JLC {
         String and = "&&";
         List<Holder> list = new ArrayList<>();
         if (!settings.containsKey(input[0])) {
-            throw new BadCommandArgumentException("wrong command"); // если первый аргумент не комманда - нет смысла проверять всю строку.
+            throw new BadCommandArgumentException("Комманда не найдена"); // если первый аргумент не комманда - нет смысла проверять всю строку.
         }
         Class<? extends Command> c = null;
         int temp = 0, mark = 0;
@@ -81,9 +84,12 @@ public class JLC {
                 splitter = input[i];
             }
             if(c != null && i == input.length-1 && found){
-                load(list, c, input, mark+1, input.length, splitter);
+                if(!input[input.length-1].equals("&"))
+                    load(list, c, input, mark+1, input.length, splitter);
+                else
+                    load(list,c,input,mark+1,input.length-1,splitter);
                 found = false;
-            splitter = null;
+                splitter = null;
             }
             else if ((c != null && next)) {
                 load(list, c, input, mark+1, temp, splitter);
@@ -92,8 +98,6 @@ public class JLC {
             }
             next = false;
             temp++;
-        }
-        for(Holder h : list){
         }
         return list;
     }

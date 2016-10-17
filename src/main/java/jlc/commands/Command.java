@@ -18,11 +18,11 @@ import jlc.exceptions.BadCommandArgumentException;
  */
 public interface Command extends Callable<String> {
      String invoke() throws BadCommandArgumentException;//return currentDir if dir not changed
-     int argsAmount();
+     int argsAmount(); //minimal count of args
      static String execute(Command command, boolean daemon) throws BadCommandArgumentException{
         return command.invoke();
     }
-     static String execute(List<Command> commands) throws BadCommandArgumentException, InterruptedException, ExecutionException{
+     static String execute(List<Command> commands, boolean daemon) throws BadCommandArgumentException, InterruptedException, ExecutionException{
         if (commands.size() == 0)
             throw new BadCommandArgumentException();
         ExecutorService es = Executors.newFixedThreadPool(commands.size());

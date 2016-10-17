@@ -18,17 +18,18 @@ public class ChangeDirectory implements Command{
     private static final String SPLITTER = "/";
     private static final String RETURN = "..";
     private final String currentDir;
-    private final String arg;
+    private String arg;
 
     public ChangeDirectory(String currentDir, String arg) {
         this.currentDir = currentDir;
         this.arg = arg;
     }
+    public ChangeDirectory(String currentDir){
+        this.currentDir = currentDir;
+    }
     
     @Override
     public String invoke() throws BadCommandArgumentException{
-        if (arg == null)
-            throw new BadCommandArgumentException("error: no args");
         if (arg.equals(RETURN) && currentDir.split(SPLITTER).length > 1) {     
             String result = "";
             for (int i = 1; i < currentDir.split(SPLITTER).length - 1; i++) {

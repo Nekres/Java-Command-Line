@@ -5,6 +5,7 @@
  */
 package jlc.commands;
 
+import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.ChangeDirectory;
 import jlc.commands.impl.Dir;
 import jlc.commands.impl.DirectoryTree;
@@ -14,14 +15,14 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public class CommandFactory {
+public class CommandFactory implements ThreadFactory{
     
-    public static Command createCommand(Class<? extends Command> command, String currentDir, String[] arg) throws BadCommandArgumentException{
+    public static Command createCommand(Class<Command> command, String currentDir, String[] arg) throws BadCommandArgumentException{
         if (command.equals(ChangeDirectory.class)){
             if (arg.length == 1)
             return new ChangeDirectory(currentDir, arg[0]);
             else
-                throw new BadCommandArgumentException();
+                throw new BadCommandArgumentException("Ошибка: Неверное количество аргументов.");
         }
         if (command.equals(Dir.class)) {
             if (arg.length == 1)
@@ -35,6 +36,13 @@ public class CommandFactory {
             else
                 throw new BadCommandArgumentException();
         }
-        throw new BadCommandArgumentException("комманда не найдена");
+        throw new BadCommandArgumentException("Ошибка: комманда не найдена.");
+    }
+
+    @Override
+    public Thread newThread(Runnable r) {
+        Thread t = new Thread(r);
+        t.setDaemon(true);
+        return t;
     }
 }
