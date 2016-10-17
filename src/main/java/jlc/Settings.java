@@ -5,9 +5,14 @@
  */
 package jlc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import jlc.parse.impl.JAXBParser;
 
 /**
  *
@@ -42,6 +47,14 @@ public class Settings {
     @XmlElement
     public void setDirectoryTree(String directoryTree) {
         this.directoryTree = directoryTree;
+    }
+    public static void setDefaultFile(File file) throws JAXBException{
+        Settings s = new Settings();
+        s.setChangeDirectory("cd");
+        s.setDir("dir");
+        s.setDirectoryTree("tree");
+        JAXBParser parser = new JAXBParser();
+        parser.saveObject(s, file);
     }
     
     

@@ -14,11 +14,21 @@ import java.util.Arrays;
 public class Holder {
     public final Class command;
     public final String[] arg;
+    private String next;
 
     public Holder(Class command, String[] arg) {
         this.command = command;
         this.arg = arg;
     }
+
+    public String getNext() {
+        return next;
+    }
+
+    public void setNext(String next) {
+        this.next = next;
+    }
+    
 
     @Override
     public String toString() {

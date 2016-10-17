@@ -1,0 +1,16 @@
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/impl/ChangeDirectory.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/exceptions/BadCommandArgumentException.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/CommandFactory.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/Holder.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/impl/DirectoryTree.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/exceptions/JCLException.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/JLC.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/Filter.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/Command.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/exceptions/BadSettingsException.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/commands/impl/Dir.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/parse/impl/JAXBParser.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/Settings.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/parse/Parser.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/ProcessOutputReader.java
+/home/desolation/NetBeansProjects/JLC/src/main/java/jlc/view/DaemonThreadsTable.java

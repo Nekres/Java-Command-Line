@@ -28,7 +28,7 @@ public class ChangeDirectory implements Command{
     @Override
     public String invoke() throws BadCommandArgumentException{
         if (arg == null)
-            throw new BadCommandArgumentException("no args");
+            throw new BadCommandArgumentException("error: no args");
         if (arg.equals(RETURN) && currentDir.split(SPLITTER).length > 1) {     
             String result = "";
             for (int i = 1; i < currentDir.split(SPLITTER).length - 1; i++) {
@@ -40,6 +40,8 @@ public class ChangeDirectory implements Command{
             if (arg.equals(file.getName()) && new File(currentDir + SPLITTER +arg).isDirectory()) {
                 return currentDir + SPLITTER + arg;
             }
+            else
+                throw new BadCommandArgumentException("Ошибка: Неправильный аргумент \""+arg+"\"");
         }
         return currentDir;
     }
