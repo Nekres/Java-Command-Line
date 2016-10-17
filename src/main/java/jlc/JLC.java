@@ -94,8 +94,6 @@ public class JLC {
             temp++;
         }
         for(Holder h : list){
-            System.out.println(h.toString());
-            System.out.println(h.getNext());
         }
         return list;
     }
