@@ -10,6 +10,8 @@ import jlc.exceptions.BadCommandArgumentException;
 import java.io.File;
 import java.text.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
 
@@ -34,7 +36,7 @@ public class Dir implements Command{
     }
     
     @Override
-    public String invoke() throws BadCommandArgumentException {
+    public void invoke() throws BadCommandArgumentException {
         File file = new File(currentDir);
         if (file.isDirectory()){
             if (arg != null){
@@ -43,7 +45,7 @@ public class Dir implements Command{
                 System.out.println(f.getName());
             }
             catch (PatternSyntaxException e){
-                throw new BadCommandArgumentException("Dangling meta character \"" + arg + "\"");
+                throw new BadCommandArgumentException("Неправильный аргумент \"" + arg + "\"");
             }
             }
             else{
@@ -58,14 +60,9 @@ public class Dir implements Command{
             }
         }
         else
-            System.out.println("no files exist.");
-        return currentDir;
+            System.out.println("Файлов нет.");
     }
 
-    @Override
-    public String call() throws Exception {
-        return this.invoke();
-    }
     private final void printInfo(int length){
         int max = 30;
         if(length > max)
@@ -78,6 +75,15 @@ public class Dir implements Command{
     @Override
     public int argsAmount() {
         return ARG_AMOUNT;
+    }
+
+    @Override
+    public void run() {
+        try {
+            invoke();
+        } catch (BadCommandArgumentException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     

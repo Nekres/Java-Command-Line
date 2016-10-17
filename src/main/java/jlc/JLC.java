@@ -10,6 +10,7 @@ import java.util.*;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.NoSuchCommandException;
 import jlc.parse.impl.JAXBParser;
 
 /**
@@ -21,13 +22,15 @@ public class JLC {
     private static final Scanner SCAN = new Scanner(System.in);
     private static String currentDir = System.getProperty("user.dir");
     private static HashMap<String, Class<? extends Command>> settings = new HashMap<>();
+
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
+        System.setProperty("user.dir", currentDir);
         File file = new File("settings.xml");
-        if(!file.exists()){
+        if (!file.exists()) {
             Settings.setDefault(file);
             System.out.println("Run with default settings...");
         }
@@ -39,32 +42,33 @@ public class JLC {
         boolean running = true, daemon = false;
         System.out.println("Java command line.");
         while (running) {
+            System.setProperty("user.dir", currentDir);
             System.out.print(currentDir + ":");
             String command = SCAN.nextLine().trim();
             String arr[] = command.split(" ");
-            try{
-                List<Holder> commandList = analyze(settings,arr);
-                if(commandList.size() == 1){
-                    Command c = CommandFactory.createCommand(commandList.get(0).command, currentDir, commandList.get(0).arg);
-                    currentDir = Command.execute(c,false);
-                }
-                else{
-                    for(Holder h: commandList){
-                        Command c = CommandFactory.createCommand(h.command, currentDir, h.arg);
-                        currentDir = Command.execute(c,false);
-                    }
-                }
-            }catch(BadCommandArgumentException e){
+            daemon = arr[arr.length - 1].equals("&");
+            if(daemon)
+                System.out.println("Daemon processing..");
+            try {
+                List<Command> commandList = analyze(settings, arr);
+                Command.execute(commandList, daemon);
+            } catch (BadCommandArgumentException e) {
                 System.out.println(e.getMessage());
+            } catch(NoSuchCommandException e){
+                ProcessBuilder pb = new ProcessBuilder("gedit", "pom.xml");
+                Process p = pb.start();
             }
+            
         }
     }
-    public static List<Holder> analyze(HashMap<String, Class<? extends Command>> settings,String[] input) throws BadCommandArgumentException{
+
+    public static List<Command> analyze(HashMap<String, Class<? extends Command>> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
         String or = "||";
         String and = "&&";
         List<Holder> list = new ArrayList<>();
+        List<Command> result = new ArrayList<>();
         if (!settings.containsKey(input[0])) {
-            throw new BadCommandArgumentException("Комманда не найдена"); // если первый аргумент не комманда - нет смысла проверять всю строку.
+            throw new NoSuchCommandException(); // если первый аргумент не комманда - нет смысла проверять всю строку.
         }
         Class<? extends Command> c = null;
         int temp = 0, mark = 0;
@@ -79,29 +83,34 @@ public class JLC {
                     break;
                 }
             }
-            if (input[i].equals(or) || input[i].equals(and)){
+            if (input[i].equals(or) || input[i].equals(and)) {
                 next = true;
                 splitter = input[i];
             }
-            if(c != null && i == input.length-1 && found){
-                if(!input[input.length-1].equals("&"))
-                    load(list, c, input, mark+1, input.length, splitter);
-                else
-                    load(list,c,input,mark+1,input.length-1,splitter);
+            if (c != null && i == input.length - 1 && found) {
+                if (!input[input.length - 1].equals("&")) {
+                    load(list, c, input, mark + 1, input.length, splitter);
+                } else {
+                    load(list, c, input, mark + 1, input.length - 1, splitter);
+                }
                 found = false;
                 splitter = null;
-            }
-            else if ((c != null && next)) {
-                load(list, c, input, mark+1, temp, splitter);
+            } else if ((c != null && next)) {
+                load(list, c, input, mark + 1, temp, splitter);
                 found = false;
                 splitter = null;
             }
             next = false;
             temp++;
         }
-        return list;
+        for(Holder h: list){
+            Command cmd = CommandFactory.createCommand(h.command, currentDir, h.arg);
+            result.add(cmd);
+        }
+        return result;
     }
-    private static final void load(List<Holder> list, Class<? extends Command> c,String[] input, int from, int to, String splitter){
+
+    private static final void load(List<Holder> list, Class<? extends Command> c, String[] input, int from, int to, String splitter) {
         Holder h = new Holder(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);

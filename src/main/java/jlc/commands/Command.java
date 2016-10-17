@@ -16,20 +16,26 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public interface Command extends Callable<String> {
-     String invoke() throws BadCommandArgumentException;//return currentDir if dir not changed
+public interface Command extends Runnable{
+     void invoke() throws BadCommandArgumentException;//return currentDir if dir not changed
      int argsAmount(); //minimal count of args
-     static String execute(Command command, boolean daemon) throws BadCommandArgumentException{
-        return command.invoke();
+     static void execute(Command command) throws BadCommandArgumentException{
+        command.invoke();
     }
-     static String execute(List<Command> commands, boolean daemon) throws BadCommandArgumentException, InterruptedException, ExecutionException{
+     static void execute(List<Command> commands, boolean daemon) throws BadCommandArgumentException, InterruptedException, ExecutionException{
         if (commands.size() == 0)
             throw new BadCommandArgumentException();
-        ExecutorService es = Executors.newFixedThreadPool(commands.size());
-        String result = "";
-        for (Command c : commands){
-            result = es.submit(c).get();
+        ExecutorService es;
+        if (daemon) {
+            es = Executors.newCachedThreadPool(new CommandFactory());
+            String result = "";
+            for (Command c : commands) {
+                es.execute(c);
+                es.shutdown();
+            }
         }
-        return result;
+        else
+            for(Command c: commands)
+                Command.execute(c);
     }
 }
