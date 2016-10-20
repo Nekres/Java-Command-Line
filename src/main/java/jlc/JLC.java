@@ -33,10 +33,13 @@ public class JLC {
             Settings.setDefault(file);
             System.out.println("Run with default settings...");
         }
-        Settings options = (Settings) new JAXBParser().getObject(new File("settings.xml"), Settings.class); //settings from "settings.xml" file
+        Settings options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from "settings.xml" file
         settings.add(options.getDir());
+        Dir.NAME = options.getDir();
         settings.add(options.getDirectoryTree());
+        DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
+        ChangeDirectory.NAME = options.getChangeDirectory();
         boolean running = true, daemon = false;
         System.out.println("Java command line.");
         while (running) {
@@ -65,7 +68,7 @@ public class JLC {
 //        }
         String c = null;
         int temp = 0, mark = 0;
-        boolean next = false, found = false;
+        boolean next = true, found = false;
         String splitter = null;
         for (int i = 0; i < input.length; i++) {
             for (String ks : settings) {
@@ -73,6 +76,7 @@ public class JLC {
                     c = ks;
                     mark = i; //индекс комманды
                     found = true;
+                    next = false;
                     break;
                 }
             }
@@ -81,7 +85,6 @@ public class JLC {
                 mark = i;
                 found = true;
                 next = false;
-                break;
             }
             if (input[i].equals(or) || input[i].equals(and)) {
                 next = true;

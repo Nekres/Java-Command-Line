@@ -5,8 +5,17 @@
  */
 package jlc.commands;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jlc.commands.impl.ChangeDirectory;
 import jlc.commands.impl.Dir;
 import jlc.commands.impl.DirectoryTree;
@@ -48,6 +57,15 @@ public class CommandFactory implements ThreadFactory{
     public Thread newThread(Runnable r) {
         Thread t = new Thread(r);
         t.setDaemon(true);
+        File file = new File(new Date().toString());
+        PrintStream ps = null;
+        try {
+            file.createNewFile();
+            ps = new PrintStream(file);
+        } catch (FileNotFoundException ex) {
+        }
+         catch (IOException ex) {
+        }
         return t;
     }
 }
