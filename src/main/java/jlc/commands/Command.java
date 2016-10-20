@@ -18,11 +18,8 @@ import jlc.exceptions.BadCommandArgumentException;
 public interface Command extends Runnable{
      void invoke() throws BadCommandArgumentException;//return currentDir if dir not changed
      int argsAmount(); //minimal count of args
-     static void execute(Command command) throws BadCommandArgumentException{
-        command.invoke();
-    }
      static void execute(List<Command> commands, boolean daemon) throws BadCommandArgumentException, InterruptedException, ExecutionException{
-        if (commands.size() == 0)
+         if (commands.size() == 0)
             throw new BadCommandArgumentException();
         ExecutorService es;
         if (daemon) {
@@ -34,6 +31,6 @@ public interface Command extends Runnable{
         }
         else
             for(Command c: commands)
-                Command.execute(c);
+                c.invoke();
     }
 }

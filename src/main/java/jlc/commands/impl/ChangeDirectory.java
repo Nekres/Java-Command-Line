@@ -6,8 +6,6 @@
 package jlc.commands.impl;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -16,6 +14,7 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class ChangeDirectory implements Command{
+    public static String NAME = "cd";
     private static final int ARG_AMOUNT = 1;
     private static final String SPLITTER = "/";
     private static final String RETURN = "..";

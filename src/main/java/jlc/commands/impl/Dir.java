@@ -10,8 +10,6 @@ import jlc.exceptions.BadCommandArgumentException;
 import java.io.File;
 import java.text.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
 
@@ -20,24 +18,21 @@ import jlc.commands.Filter;
  * @author desolation
  */
 public class Dir implements Command{
+    public static String NAME = "dir";
     private static final int ARG_AMOUNT = 0;
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
-    private final String currentDir;
     private String arg;
     static{ DATE.setTimeZone(TimeZone.getTimeZone("UTC"));}
         
-    public Dir(String currentDir, String arg) {
-        this.currentDir = currentDir;
+    public Dir(String arg) {
         this.arg = arg;
-        
     }
-    public Dir(String currentDir){
-        this.currentDir = currentDir;
+    public Dir(){
     }
     
     @Override
     public void invoke() throws BadCommandArgumentException {
-        File file = new File(currentDir);
+        File file = new File(System.getProperty("user.dir"));
         if (file.isDirectory()){
             if (arg != null){
             try{

@@ -5,10 +5,12 @@
  */
 package jlc.commands;
 
+import java.util.Map;
 import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.ChangeDirectory;
 import jlc.commands.impl.Dir;
 import jlc.commands.impl.DirectoryTree;
+import jlc.commands.impl.SystemTask;
 import jlc.exceptions.BadCommandArgumentException;
 
 /**
@@ -17,26 +19,29 @@ import jlc.exceptions.BadCommandArgumentException;
  */
 public class CommandFactory implements ThreadFactory{
     
-    public static Command createCommand(Class<Command> command, String currentDir, String[] arg) throws BadCommandArgumentException{
-        if (command.equals(ChangeDirectory.class)){
+    public static Command createCommand(String command, String[] arg) throws BadCommandArgumentException{
+        if (command.equals(ChangeDirectory.NAME)){
             if (arg.length == 1)
             return new ChangeDirectory(arg[0]);
             else
                 throw new BadCommandArgumentException("Ошибка: Неверное количество аргументов.");
         }
-        if (command.equals(Dir.class)) {
+        if (command.equals(Dir.NAME)) {
             if (arg.length == 1)
-                return new Dir(currentDir, arg[0]);
+                return new Dir(arg[0]);
             else
-                return new Dir(currentDir);
+                return new Dir();
         }
-        if(command.equals(DirectoryTree.class)){
+        if(command.equals(DirectoryTree.NAME)){
             if (arg.length == 0)
-            return new DirectoryTree(currentDir);
+            return new DirectoryTree();
             else
                 throw new BadCommandArgumentException();
         }
-        throw new BadCommandArgumentException("Ошибка: комманда не найдена.");
+        if(arg.length > 0)
+            return new SystemTask(command,arg);
+        else
+            return new SystemTask(command);
     }
 
     @Override

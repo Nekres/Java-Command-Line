@@ -15,12 +15,11 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class DirectoryTree implements Command{
+    public static String NAME = "tree";
     public static final int ARG_AMOUNT = 0;
     private static int inline = 0;
-    private final String currentDir;
 
-    public DirectoryTree(String currentDir) {
-        this.currentDir = currentDir;
+    public DirectoryTree() {
     }
     
     private final void check(List<File> list) throws BadCommandArgumentException{ 
@@ -32,6 +31,7 @@ public class DirectoryTree implements Command{
                 print();
                 System.out.println("{");
                 inline++;
+                if(list.get(i).listFiles()!= null)
                 check(Arrays.asList(list.get(i).listFiles()));
                 print();
                 System.out.println("}");
@@ -47,7 +47,7 @@ public class DirectoryTree implements Command{
 
     @Override
     public void invoke() throws BadCommandArgumentException {
-        List<File> list = Arrays.asList(new File(currentDir));
+        List<File> list = Arrays.asList(new File(System.getProperty("user.dir")));
         check(list);
     }
 

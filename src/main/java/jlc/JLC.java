@@ -21,29 +21,26 @@ public class JLC {
 
     private static final Scanner SCAN = new Scanner(System.in);
     private static String currentDir = System.getProperty("user.dir");
-    private static HashMap<String, Class<? extends Command>> settings = new HashMap<>();
+    private static List<String> settings = new ArrayList<>();
 
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        System.setProperty("user.dir", currentDir);
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
             System.out.println("Run with default settings...");
         }
-        Settings set = (Settings) new JAXBParser().getObject(new File("settings.xml"), Settings.class); //settings from "settings.xml" file
-        HashMap<String, Class<? extends Command>> settings = new HashMap<>();
-        settings.put(set.getDir(), Dir.class);
-        settings.put(set.getDirectoryTree(), DirectoryTree.class);
-        settings.put(set.getChangeDirectory(), ChangeDirectory.class);
+        Settings options = (Settings) new JAXBParser().getObject(new File("settings.xml"), Settings.class); //settings from "settings.xml" file
+        settings.add(options.getDir());
+        settings.add(options.getDirectoryTree());
+        settings.add(options.getChangeDirectory());
         boolean running = true, daemon = false;
         System.out.println("Java command line.");
         while (running) {
-            System.setProperty("user.dir", currentDir);
-            System.out.print(currentDir + ":");
+            System.out.print(System.getProperty("user.dir") + ":");
             String command = SCAN.nextLine().trim();
             String arr[] = command.split(" ");
             daemon = arr[arr.length - 1].equals("&");
@@ -54,15 +51,11 @@ public class JLC {
                 Command.execute(commandList, daemon);
             } catch (BadCommandArgumentException e) {
                 System.out.println(e.getMessage());
-            } catch(NoSuchCommandException e){
-                ProcessBuilder pb = new ProcessBuilder("gedit", "pom.xml");
-                Process p = pb.start();
             }
-            
         }
     }
 
-    public static List<Command> analyze(HashMap<String, Class<? extends Command>> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
+    public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
         String or = "||";
         String and = "&&";
         List<Holder> list = new ArrayList<>();
@@ -75,7 +68,7 @@ public class JLC {
         boolean next = false, found = false;
         String splitter = null;
         for (int i = 0; i < input.length; i++) {
-            for (String ks : settings.keySet()) {
+            for (String ks : settings) {
                 if (input[i].equals(ks)) {
                     c = ks;
                     mark = i; //индекс комманды
@@ -113,10 +106,10 @@ public class JLC {
         for (Holder h : list){
             System.out.println(h);
         }
-//        for(Holder h: list){
-//            Command cmd = CommandFactory.createCommand(h.command, currentDir, h.arg);
-//            result.add(cmd);
-//        }
+        for(Holder h: list){
+            Command cmd = CommandFactory.createCommand(h.command, h.arg);
+            result.add(cmd);
+        }
         return result;
     }
 
