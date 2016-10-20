@@ -12,11 +12,11 @@ import java.util.Arrays;
  * @author desolation
  */
 public class Holder {
-    public final Class command;
+    public final String command;
     public final String[] arg;
     private String next;
 
-    public Holder(Class command, String[] arg) {
+    public Holder(String command, String[] arg) {
         this.command = command;
         this.arg = arg;
     }

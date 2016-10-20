@@ -6,7 +6,6 @@
 package jlc.commands;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +27,6 @@ public interface Command extends Runnable{
         ExecutorService es;
         if (daemon) {
             es = Executors.newCachedThreadPool(new CommandFactory());
-            String result = "";
             for (Command c : commands) {
                 es.execute(c);
                 es.shutdown();

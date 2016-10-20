@@ -67,21 +67,28 @@ public class JLC {
         String and = "&&";
         List<Holder> list = new ArrayList<>();
         List<Command> result = new ArrayList<>();
-        if (!settings.containsKey(input[0])) {
-            throw new NoSuchCommandException(); // если первый аргумент не комманда - нет смысла проверять всю строку.
-        }
-        Class<? extends Command> c = null;
+//        if (!settings.containsKey(input[0])) {
+//            throw new NoSuchCommandException(); // если первый аргумент не комманда - нет смысла проверять всю строку.
+//        }
+        String c = null;
         int temp = 0, mark = 0;
         boolean next = false, found = false;
         String splitter = null;
         for (int i = 0; i < input.length; i++) {
             for (String ks : settings.keySet()) {
                 if (input[i].equals(ks)) {
-                    c = settings.get(ks);
+                    c = ks;
                     mark = i; //индекс комманды
                     found = true;
                     break;
                 }
+            }
+            if (next) {
+                c = input[i];
+                mark = i;
+                found = true;
+                next = false;
+                break;
             }
             if (input[i].equals(or) || input[i].equals(and)) {
                 next = true;
@@ -103,14 +110,17 @@ public class JLC {
             next = false;
             temp++;
         }
-        for(Holder h: list){
-            Command cmd = CommandFactory.createCommand(h.command, currentDir, h.arg);
-            result.add(cmd);
+        for (Holder h : list){
+            System.out.println(h);
         }
+//        for(Holder h: list){
+//            Command cmd = CommandFactory.createCommand(h.command, currentDir, h.arg);
+//            result.add(cmd);
+//        }
         return result;
     }
 
-    private static final void load(List<Holder> list, Class<? extends Command> c, String[] input, int from, int to, String splitter) {
+    private static final void load(List<Holder> list, String c, String[] input, int from, int to, String splitter) {
         Holder h = new Holder(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
