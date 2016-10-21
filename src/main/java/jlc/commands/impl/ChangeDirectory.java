@@ -6,6 +6,8 @@
 package jlc.commands.impl;
 
 import java.io.File;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -60,6 +62,9 @@ public class ChangeDirectory implements Command{
             System.out.println(ex.getMessage());
         }
     }
+
+    @Override
+    public void setOutputPath(PrintStream path) {}
 
     
 }

@@ -5,6 +5,8 @@
  */
 package jlc.commands;
 
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -33,4 +35,6 @@ public interface Command extends Runnable{
             for(Command c: commands)
                 c.invoke();
     }
+     void setOutputPath(PrintStream path);
+        
 }

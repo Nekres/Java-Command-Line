@@ -57,7 +57,10 @@ public class CommandFactory implements ThreadFactory{
     public Thread newThread(Runnable r) {
         Thread t = new Thread(r);
         t.setDaemon(true);
-        File file = new File(new Date().toString());
+        File logDir = new File("log");
+        if(!logDir.exists())
+        logDir.mkdir();
+        File file = new File("log/"+new Date().toString());
         PrintStream ps = null;
         try {
             file.createNewFile();
