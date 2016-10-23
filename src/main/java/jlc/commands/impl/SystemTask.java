@@ -5,10 +5,7 @@
  */
 package jlc.commands.impl;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
@@ -17,9 +14,8 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public class SystemTask implements Command{
+public class SystemTask extends AbstractCommand implements Command{
     private ArrayList<String> task = new ArrayList<>();
-    private BufferedWriter bw = new BufferedWriter(new PrintWriter(System.out));
     public SystemTask(String task, String[] args) {
         this.task.add(task);
         for(String s :args)
@@ -31,8 +27,7 @@ public class SystemTask implements Command{
     }
     
     @Override
-    public void invoke() throws BadCommandArgumentException {
-        try{
+    public void invoke() throws BadCommandArgumentException, IOException {
         ProcessBuilder pb = new ProcessBuilder(task);
         try {
             Process p = pb.start();
@@ -40,9 +35,6 @@ public class SystemTask implements Command{
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             bw.write("Выполнение команды прервано.");
-        }
-        }catch(IOException e){
-            System.out.println(e.getMessage());
         }
     }
 
@@ -57,12 +49,24 @@ public class SystemTask implements Command{
             invoke();
         } catch (BadCommandArgumentException ex) {
             System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
     @Override
     public void setOutputPath(PrintStream path) {
         this.bw = new BufferedWriter(new PrintWriter(path));;
+    }
+    
+    @Override
+    public String toString() {
+        return "_"+ task.get(0) + "#ID{" + INSTANCE_ID++;
+    }
+
+    @Override
+    public String getName() {
+        return task.get(0);
     }
     
 }

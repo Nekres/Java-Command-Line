@@ -5,11 +5,7 @@
  */
 package jlc.commands.impl;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,37 +16,33 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public class DirectoryTree implements Command{
+public class DirectoryTree extends AbstractCommand implements Command{
     public static String NAME = "tree";
     public static final int ARG_AMOUNT = 0;
     private static int inline = 0;
-    private BufferedWriter bw = new BufferedWriter(new PrintWriter(System.out));
 
     public DirectoryTree() {
     }
     
-    private final void check(List<File> list) throws BadCommandArgumentException{
-        try {
+    private final void check(List<File> list, int brackets) throws BadCommandArgumentException, IOException{
             for (int i = 0; i < list.size(); i++) {
-                bw.write(list.get(i).getName());
+                bw.write(list.get(i).getName() + " ");
             }
+            bw.write("\n");
             for (int i = 0; i < list.size(); i++) {
                 if (list.get(i).isDirectory()) {
                     bw.write(list.get(i).getName());
                     print(bw);
-                    bw.write("{");
+                    bw.write("{("+ ++brackets + ")");
                     inline++;
                     if (list.get(i).listFiles() != null) {
-                        check(Arrays.asList(list.get(i).listFiles()));
+                        check(Arrays.asList(list.get(i).listFiles()),brackets);
                     }
-                    print(bw);
-                    bw.write("}");
+                   // print(bw);
+                    bw.write("}(" + --brackets + ")");
                 }
             }
             inline--;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private final void print(BufferedWriter bw) throws IOException{
@@ -60,9 +52,13 @@ public class DirectoryTree implements Command{
     }
 
     @Override
-    public void invoke() throws BadCommandArgumentException {
+    public void invoke() throws BadCommandArgumentException, IOException {
         List<File> list = Arrays.asList(new File(System.getProperty("user.dir")));
-            check(list);
+        check(list,0);
+        if(!currentOutput.equals(DEFAULT_OUTPUT))
+            bw.close();
+        else
+            bw.flush();
     }
 
     @Override
@@ -76,6 +72,8 @@ public class DirectoryTree implements Command{
             invoke();
         } catch (BadCommandArgumentException ex) {
             System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
         
     }
@@ -85,5 +83,14 @@ public class DirectoryTree implements Command{
         this.bw = new BufferedWriter(new PrintWriter(path));
     }
 
+    @Override
+    public String toString() {
+        return "_TREE #ID{" + INSTANCE_ID++;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
     
 }

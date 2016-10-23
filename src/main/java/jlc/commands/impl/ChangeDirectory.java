@@ -7,7 +7,6 @@ package jlc.commands.impl;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -15,7 +14,7 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public class ChangeDirectory implements Command{
+public class ChangeDirectory extends AbstractCommand implements Command{
     public static String NAME = "cd";
     private static final int ARG_AMOUNT = 1;
     private static final String SPLITTER = "/";
@@ -39,14 +38,13 @@ public class ChangeDirectory implements Command{
             System.setProperty("user.dir", result);
             return;
         }
-        for (File file : new File(currentDir).listFiles()) {   
-            if (arg.equals(file.getName()) && new File(currentDir + SPLITTER +arg).isDirectory()) {
+        for (File file : new File(currentDir).listFiles()) {
+            if (arg.toLowerCase().equals(file.getName().toLowerCase()) && new File(currentDir + SPLITTER + arg).isDirectory()) {
                 System.setProperty("user.dir", currentDir + SPLITTER + arg);
                 return;
             }
-            else
-                throw new BadCommandArgumentException("Ошибка: Неправильный аргумент \""+arg+"\"");
         }
+        throw new BadCommandArgumentException("Ошибка: Нет такой директории \"" + arg + "\".");
     }
 
     @Override
@@ -65,6 +63,16 @@ public class ChangeDirectory implements Command{
 
     @Override
     public void setOutputPath(PrintStream path) {}
+
+    @Override
+    public String toString() {
+        return "_CD #ID" + INSTANCE_ID++;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
 
     
 }

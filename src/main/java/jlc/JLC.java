@@ -28,6 +28,10 @@ public class JLC {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
+        File logs = new File("logs");
+        if(!logs.exists()){
+            logs.mkdir();
+        }
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);

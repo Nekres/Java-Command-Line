@@ -5,15 +5,13 @@
  */
 package jlc.commands.impl;
 
-import java.io.BufferedWriter;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.text.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
 
@@ -21,12 +19,11 @@ import jlc.commands.Filter;
  *
  * @author desolation
  */
-public class Dir implements Command{
+public class Dir extends AbstractCommand implements Command{
     public static String NAME = "dir";
     private static final int ARG_AMOUNT = 0;
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
     private String arg;
-    private BufferedWriter bw = new BufferedWriter(new PrintWriter(System.out));
     static{ DATE.setTimeZone(TimeZone.getTimeZone("UTC"));}
         
     public Dir(String arg) {
@@ -36,9 +33,8 @@ public class Dir implements Command{
     }
     
     @Override
-    public void invoke() throws BadCommandArgumentException {
+    public void invoke() throws BadCommandArgumentException, IOException {
         File file = new File(System.getProperty("user.dir"));
-        try{
         if (file.isDirectory()){
             if (arg != null){
             try{
@@ -53,26 +49,28 @@ public class Dir implements Command{
                 String[] list = file.list();
                 Arrays.sort(list,String.CASE_INSENSITIVE_ORDER);
                 for(File f : file.listFiles()){
-                System.out.print(f.getName());
+                bw.write(f.getName());
                 printInfo(f.getName().length());
-                    System.out.print(DATE.format(new Date(f.lastModified())));
-                    System.out.println();
+                    bw.write(DATE.format(new Date(f.lastModified())));
+                    bw.write("\n");
                 }
             }
         }
         else
             bw.write("Файлов нет.");
-        }catch(IOException e){
-            throw new RuntimeException(e);
+        if (!currentOutput.equals(DEFAULT_OUTPUT)){
+            bw.close();
         }
+        else
+            bw.flush();
     }
 
-    private final void printInfo(int length){
+    private final void printInfo(int length) throws IOException{
         int max = 30;
         if(length > max)
-            System.out.println();
+            bw.write("\n");
         for(int i = 0; i < max-length;i++){
-            System.out.print(" ");
+            bw.write(" ");
         }
     }
 
@@ -87,12 +85,26 @@ public class Dir implements Command{
             invoke();
         } catch (BadCommandArgumentException ex) {
             System.out.println(ex.getMessage());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
     @Override
     public void setOutputPath(PrintStream path) {
         bw = new BufferedWriter(new PrintWriter(path));
+        currentOutput = path;
     }
 
+    @Override
+    public String toString() {
+        return "_DIR #ID{" + INSTANCE_ID++;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
+    
+    
     
 }
