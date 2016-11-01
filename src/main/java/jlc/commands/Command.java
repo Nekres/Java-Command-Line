@@ -19,12 +19,15 @@ public interface Command extends Runnable{
      int argsAmount(); //minimal count of args
      static void execute(List<Command> commands, boolean daemon) throws BadCommandArgumentException, InterruptedException, ExecutionException, FileNotFoundException, IOException{
          if (commands.size() == 0)
-            throw new BadCommandArgumentException();
+            throw new BadCommandArgumentException("Введите команду.");
         ExecutorService es;
         if (daemon) {
             es = Executors.newCachedThreadPool(new CommandFactory());
             for (Command c : commands) {
-                File logFile = new File("logs/"+ c.getName() + "/" + new Date().toString() + c.toString()+".txt");
+                File logDIR = new File("logs/" + c.getName().toUpperCase());
+                if(!logDIR.exists())
+                    logDIR.mkdir();
+                File logFile = new File("logs/"+ c.getName().toUpperCase() + "/" + new Date().toString() + c.toString()+".txt");
                 logFile.createNewFile();
                 c.setOutputPath(new PrintStream(logFile));
                 es.execute(c);

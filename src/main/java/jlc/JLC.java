@@ -67,12 +67,9 @@ public class JLC {
         String and = "&&";
         List<Holder> list = new ArrayList<>();
         List<Command> result = new ArrayList<>();
-//        if (!settings.containsKey(input[0])) {
-//            throw new NoSuchCommandException(); // если первый аргумент не комманда - нет смысла проверять всю строку.
-//        }
-        String c = null;
-        int temp = 0, mark = 0;
-        boolean next = true, found = false;
+        String c = input[0];
+        int mark = 0;
+        boolean next = false, found = true;
         String splitter = null;
         for (int i = 0; i < input.length; i++) {
             for (String ks : settings) {
@@ -84,34 +81,29 @@ public class JLC {
                     break;
                 }
             }
+            if ((input[i].equals(or) || input[i].equals(and)) && i != 0) {
+                next = true;
+                splitter = input[i];
+                load(list, c, input, mark+1, i, splitter);
+                found = false;
+                splitter = null;
+                continue;
+            }
             if (next) {
                 c = input[i];
                 mark = i;
                 found = true;
-                next = false;
-            }
-            if (input[i].equals(or) || input[i].equals(and)) {
-                next = true;
-                splitter = input[i];
             }
             if (c != null && i == input.length - 1 && found) {
                 if (!input[input.length - 1].equals("&")) {
-                    load(list, c, input, mark + 1, input.length, splitter);
+                    load(list, c, input, mark+1, input.length, splitter);
                 } else {
-                    load(list, c, input, mark + 1, input.length - 1, splitter);
+                    load(list, c, input, mark+1, input.length - 1, splitter);
                 }
-                found = false;
-                splitter = null;
-            } else if ((c != null && next)) {
-                load(list, c, input, mark + 1, temp, splitter);
                 found = false;
                 splitter = null;
             }
             next = false;
-            temp++;
-        }
-        for (Holder h : list){
-            System.out.println(h);
         }
         for(Holder h: list){
             Command cmd = CommandFactory.createCommand(h.command, h.arg);

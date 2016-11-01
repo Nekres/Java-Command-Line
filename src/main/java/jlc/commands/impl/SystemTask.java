@@ -36,6 +36,9 @@ public class SystemTask extends AbstractCommand implements Command{
             Thread.currentThread().interrupt();
             bw.write("Выполнение команды прервано.");
         }
+        catch(IOException e){
+            throw new BadCommandArgumentException();
+        }
     }
 
     @Override

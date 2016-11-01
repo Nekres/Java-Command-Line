@@ -34,7 +34,7 @@ public class CommandFactory implements ThreadFactory{
             if (arg.length == 0)
             return new DirectoryTree();
             else
-                throw new BadCommandArgumentException();
+                throw new BadCommandArgumentException("Ошибка: Неверное количество аргументов.");
         }
         if(arg.length > 0)
             return new SystemTask(command,arg);
