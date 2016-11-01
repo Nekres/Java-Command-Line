@@ -65,7 +65,7 @@ public class JLC {
     public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
         String or = "||";
         String and = "&&";
-        List<Holder> list = new ArrayList<>();
+        List<CommandWrapper> list = new ArrayList<>();
         List<Command> result = new ArrayList<>();
         String c = input[0];
         int mark = 0;
@@ -105,15 +105,15 @@ public class JLC {
             }
             next = false;
         }
-        for(Holder h: list){
+        for(CommandWrapper h: list){
             Command cmd = CommandFactory.createCommand(h.command, h.arg);
             result.add(cmd);
         }
         return result;
     }
 
-    private static final void load(List<Holder> list, String c, String[] input, int from, int to, String splitter) {
-        Holder h = new Holder(c, Arrays.copyOfRange(input, from, to));
+    private static final void load(List<CommandWrapper> list, String c, String[] input, int from, int to, String splitter) {
+        CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
         }
