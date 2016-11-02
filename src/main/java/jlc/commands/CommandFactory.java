@@ -5,8 +5,6 @@
  */
 package jlc.commands;
 
-import java.io.*;
-import java.util.Date;
 import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
@@ -34,7 +32,7 @@ public class CommandFactory implements ThreadFactory{
             if (arg.length == 0)
             return new DirectoryTree();
             else
-                throw new BadCommandArgumentException("Ошибка: Неверное количество аргументов.");
+                throw new BadCommandArgumentException("Error: incorrect number of arguments.");
         }
         if(arg.length > 0)
             return new SystemTask(command,arg);

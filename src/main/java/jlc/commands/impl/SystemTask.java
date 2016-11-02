@@ -7,8 +7,12 @@ package jlc.commands.impl;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jlc.ProcessOutputReader;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.NoSuchCommandException;
 
 /**
  *
@@ -27,17 +31,13 @@ public class SystemTask extends AbstractCommand implements Command{
     }
     
     @Override
-    public void invoke() throws BadCommandArgumentException, IOException {
-        ProcessBuilder pb = new ProcessBuilder(task);
+    public void invoke() throws BadCommandArgumentException,IOException, NoSuchCommandException {
+        Thread t = new Thread(this);
+        t.start();
         try {
-            Process p = pb.start();
-            p.waitFor();
+            t.join();
         } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            bw.write("Выполнение команды прервано.");
-        }
-        catch(IOException e){
-            throw new BadCommandArgumentException();
+            throw new RuntimeException(ex);
         }
     }
 
@@ -48,23 +48,29 @@ public class SystemTask extends AbstractCommand implements Command{
 
     @Override
     public void run() {
+        ProcessBuilder pb = new ProcessBuilder(task);
+        try{
         try {
-            invoke();
-        } catch (BadCommandArgumentException ex) {
-            System.out.println(ex.getMessage());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            Process p = pb.start();
+            ProcessOutputReader por = new ProcessOutputReader(p.getInputStream(),currentOutput);
+            por.run();
+            p.waitFor();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+                bw.write("The command is aborted.");
+                bw.flush();
+        } catch (IOException ex){
+                bw.write("Error: no such command.");
+                bw.flush();
         }
+        } catch (IOException ex1) {
+                throw new RuntimeException(ex1);
+            }
     }
 
     @Override
-    public void setOutputPath(PrintStream path) {
-        this.bw = new BufferedWriter(new PrintWriter(path));;
-    }
-    
-    @Override
     public String toString() {
-        return "_"+ task.get(0) + "#ID{" + INSTANCE_ID++;
+        return "_"+ task.get(0) + "#ID{" + INSTANCE_ID++ + "}";
     }
 
     @Override

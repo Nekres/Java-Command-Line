@@ -6,31 +6,40 @@
 package jlc;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 
 /**
  *
  * @author desolation
  */
 public class ProcessOutputReader implements Runnable{
-    private InputStream is;
+    private InputStream in;
+    private OutputStream out;
     
-    public ProcessOutputReader(InputStream is){
-        this.is = is;
+    public ProcessOutputReader(InputStream in, OutputStream out){
+        this.in = in;
+        this.out = out;
     }
 
     @Override
     public void run() {
         try {
-            InputStreamReader isr = new InputStreamReader(is);
+            InputStreamReader isr = new InputStreamReader(in);
+            BufferedWriter bw = new BufferedWriter(new PrintWriter(out));
             BufferedReader br = new BufferedReader(isr);
             String line;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
+                bw.write(line+"\n");
+                bw.flush();
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     

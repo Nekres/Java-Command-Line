@@ -44,7 +44,7 @@ public class ChangeDirectory extends AbstractCommand implements Command{
                 return;
             }
         }
-        throw new BadCommandArgumentException("Ошибка: Нет такой директории \"" + arg + "\".");
+        throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
     }
 
     @Override

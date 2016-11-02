@@ -6,10 +6,12 @@
 package jlc;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
 import jlc.exceptions.NoSuchCommandException;
 import jlc.parse.impl.JAXBParser;
 
@@ -35,7 +37,7 @@ public class JLC {
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
-            System.out.println("Run with default settings...");
+            System.out.println("Running with default settings...");
         }
         Settings options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from "settings.xml" file
         settings.add(options.getDir());
@@ -52,11 +54,11 @@ public class JLC {
             String arr[] = command.split(" ");
             daemon = arr[arr.length - 1].equals("&");
             if(daemon)
-                System.out.println("Daemon processing..");
+                System.out.println("Running as a daemon.");
             try {
                 List<Command> commandList = analyze(settings, arr);
-                Command.execute(commandList, daemon);
-            } catch (BadCommandArgumentException e) {
+                Command.execute(commandList, daemon,"/home/desolation/NetBeansProjects");
+            } catch (JCLException e) {
                 System.out.println(e.getMessage());
             }
         }

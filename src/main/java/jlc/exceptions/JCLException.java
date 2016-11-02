@@ -10,5 +10,10 @@ package jlc.exceptions;
  * @author desolation
  */
 public class JCLException extends Exception{
+
+    @Override
+    public String getMessage() {
+        return this.getMessage(); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

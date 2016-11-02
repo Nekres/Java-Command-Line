@@ -10,8 +10,6 @@ import jlc.exceptions.BadCommandArgumentException;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
 
@@ -42,7 +40,7 @@ public class Dir extends AbstractCommand implements Command{
                 bw.write(f.getName());
             }
             catch (PatternSyntaxException e){
-                throw new BadCommandArgumentException("Неправильный аргумент \"" + arg + "\"");
+                throw new BadCommandArgumentException("Bad argument \"" + arg + "\"");
             }
             }
             else{
