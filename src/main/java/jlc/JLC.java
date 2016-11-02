@@ -8,6 +8,7 @@ package jlc;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
@@ -30,10 +31,6 @@ public class JLC {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        File logs = new File("logs");
-        if(!logs.exists()){
-            logs.mkdir();
-        }
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
@@ -46,6 +43,13 @@ public class JLC {
         DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
         ChangeDirectory.NAME = options.getChangeDirectory();
+        File logs = new File(options.getLogFilePath());
+        if (!logs.exists()){
+            if(!logs.mkdirs()){
+                System.out.println("broken logfile path. configure settings.xml");;
+                System.exit(0);
+            }
+        }
         boolean running = true, daemon = false;
         System.out.println("Java command line.");
         while (running) {
@@ -53,11 +57,12 @@ public class JLC {
             String command = SCAN.nextLine().trim();
             String arr[] = command.split(" ");
             daemon = arr[arr.length - 1].equals("&");
-            if(daemon)
+            if (daemon) {
                 System.out.println("Running as a daemon.");
+            }
             try {
                 List<Command> commandList = analyze(settings, arr);
-                Command.execute(commandList, daemon,"/home/desolation/NetBeansProjects");
+                Command.execute(commandList, daemon, options.getLogFilePath());
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
             }
@@ -86,7 +91,7 @@ public class JLC {
             if ((input[i].equals(or) || input[i].equals(and)) && i != 0) {
                 next = true;
                 splitter = input[i];
-                load(list, c, input, mark+1, i, splitter);
+                load(list, c, input, mark + 1, i, splitter);
                 found = false;
                 splitter = null;
                 continue;
@@ -98,16 +103,16 @@ public class JLC {
             }
             if (c != null && i == input.length - 1 && found) {
                 if (!input[input.length - 1].equals("&")) {
-                    load(list, c, input, mark+1, input.length, splitter);
+                    load(list, c, input, mark + 1, input.length, splitter);
                 } else {
-                    load(list, c, input, mark+1, input.length - 1, splitter);
+                    load(list, c, input, mark + 1, input.length - 1, splitter);
                 }
                 found = false;
                 splitter = null;
             }
             next = false;
         }
-        for(CommandWrapper h: list){
+        for (CommandWrapper h : list) {
             Command cmd = CommandFactory.createCommand(h.command, h.arg);
             result.add(cmd);
         }

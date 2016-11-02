@@ -17,11 +17,20 @@ import jlc.parse.impl.JAXBParser;
  * @author desolation
  */
 @XmlRootElement
-@XmlType(propOrder = {"changeDirectory","dir","directoryTree"})
+@XmlType(propOrder = {"changeDirectory","dir","directoryTree","logFilePath"})
 public class Settings {
     private String changeDirectory;
     private String dir;
     private String directoryTree;
+    private String logFilePath;
+
+    public String getLogFilePath() {
+        return logFilePath;
+    }
+    @XmlElement
+    public void setLogFilePath(String logFilePath) {
+        this.logFilePath = logFilePath;
+    }
 
     public String getChangeDirectory() {
         return changeDirectory;
@@ -51,6 +60,7 @@ public class Settings {
         s.setChangeDirectory("cd");
         s.setDir("dir");
         s.setDirectoryTree("tree");
+        s.setLogFilePath(System.getProperty("user.dir"));
         JAXBParser parser = new JAXBParser();
         parser.saveObject(s, file);
     }
