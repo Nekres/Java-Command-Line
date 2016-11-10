@@ -11,14 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 /**
  *
  * @author desolation
  */
-public class ProcessOutputReader implements Runnable{
+public class ProcessOutputReader{
     private InputStream in;
     private OutputStream out;
     
@@ -27,7 +26,6 @@ public class ProcessOutputReader implements Runnable{
         this.out = out;
     }
 
-    @Override
     public void run() {
         try {
             InputStreamReader isr = new InputStreamReader(in);

@@ -20,7 +20,7 @@ public class CommandFactory implements ThreadFactory{
             if (arg.length == 1)
             return new ChangeDirectory(arg[0]);
             else
-                throw new BadCommandArgumentException("Ошибка: Неверное количество аргументов.");
+                throw new BadCommandArgumentException("Error: incorrect number of arguments.");
         }
         if (command.equals(Dir.NAME)) {
             if (arg.length == 1)

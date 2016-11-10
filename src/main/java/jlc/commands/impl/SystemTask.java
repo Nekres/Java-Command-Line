@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import jlc.ProcessOutputReader;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
-import jlc.exceptions.NoSuchCommandException;
 
 /**
  *
@@ -29,7 +28,7 @@ public class SystemTask extends AbstractCommand implements Command{
     }
     
     @Override
-    public void invoke() throws BadCommandArgumentException,IOException, NoSuchCommandException {
+    public void invoke() throws BadCommandArgumentException,IOException {
         Thread t = new Thread(this);
         t.start();
         try {
@@ -47,6 +46,7 @@ public class SystemTask extends AbstractCommand implements Command{
     @Override
     public void run() {
         ProcessBuilder pb = new ProcessBuilder(task);
+        pb.directory(new File(System.getProperty("user.dir")));
         try {
             try {
                 Process p = pb.start();
@@ -58,7 +58,7 @@ public class SystemTask extends AbstractCommand implements Command{
                 bw.write("The command is aborted.");
                 bw.flush();
             } catch (IOException ex) {
-                bw.write("Error: no such command.");
+                bw.write("Error: no such command.\n");
                 bw.flush();
             }
         } catch (IOException ex1) {

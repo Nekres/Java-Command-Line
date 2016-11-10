@@ -8,6 +8,8 @@ package jlc.commands;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.NoSuchCommandException;
 
@@ -15,33 +17,49 @@ import jlc.exceptions.NoSuchCommandException;
  *
  * @author desolation
  */
-public interface Command extends Runnable{
-     void invoke() throws BadCommandArgumentException,IOException,NoSuchCommandException;//return currentDir if dir not changed
-     int argsAmount(); //minimal count of args
-     static void execute(List<Command> commands, boolean daemon,String logFilePath) throws BadCommandArgumentException, InterruptedException, ExecutionException, FileNotFoundException, IOException, NoSuchCommandException{
-         if (commands.size() == 0)
+public interface Command extends Runnable {
+
+    void invoke() throws BadCommandArgumentException, IOException;//return currentDir if dir not changed
+
+    int argsAmount(); //minimal count of args
+
+    static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, IOException, NoSuchCommandException {
+        if (commands.isEmpty()) {
             throw new BadCommandArgumentException("Enter the command.");
-        
-        ExecutorService es;
-        if (daemon) {
-            es = Executors.newCachedThreadPool(new CommandFactory());
-            for (Command c : commands) {
-                File logDIR = new File(logFilePath + "/logs/" + c.getName().toUpperCase());
-                if(!logDIR.exists())
-                    logDIR.mkdirs();
-                File logFile = new File(logFilePath + "/logs/"+ c.getName().toUpperCase() + "/" + new Date().toString() + c.toString()+".txt");
-                logFile.createNewFile();
-                c.setOutputPath(new PrintStream(logFile));
-                es.execute(c);
-               // es.shutdown();
-            }
-            es.shutdown();
         }
-        else
-            for(Command c: commands)
+        if (daemon) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        for (Command c : commands) {
+                            File logDIR = new File(logFilePath + "/logs/" + c.getName().toUpperCase());
+                            if (!logDIR.exists()) {
+                                logDIR.mkdirs();
+                            }
+                            File logFile = new File(logFilePath + "/logs/" + c.getName().toUpperCase() + "/" + new Date().toString() + c.toString() + ".txt");
+                            logFile.createNewFile();
+                            c.setOutputPath(new PrintStream(logFile));
+                            c.invoke();
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Error: no such command.\n");
+                    } catch (BadCommandArgumentException ex) {
+                        System.out.println("Error: bad args.");
+                    }
+                }
+            });
+            t.setDaemon(true);
+            t.start();
+        } else {
+            for (Command c : commands) {
                 c.invoke();
+            }
+        }
     }
-     void setOutputPath(PrintStream path);
-     String getName();
-        
+
+    void setOutputPath(PrintStream path);
+
+    String getName();
+
 }

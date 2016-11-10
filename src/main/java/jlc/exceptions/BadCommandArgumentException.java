@@ -10,7 +10,7 @@ package jlc.exceptions;
  * @author desolation
  */
 public class BadCommandArgumentException extends JCLException{
-    private String message = "wrong count of arguments for this command";
+    private String message = "Error: bad arguments for this command.";
     
     public BadCommandArgumentException(String message){
         this.message = message;

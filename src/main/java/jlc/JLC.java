@@ -72,7 +72,8 @@ public class JLC {
     public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
         String or = "||";
         String and = "&&";
-        List<CommandWrapper> list = new ArrayList<>();
+        List<CommandWrapper> commands = new ArrayList<>();
+        List<String> splitters = new ArrayList<>(); // && or ||
         List<Command> result = new ArrayList<>();
         String c = input[0];
         int mark = 0;
@@ -91,28 +92,33 @@ public class JLC {
             if ((input[i].equals(or) || input[i].equals(and)) && i != 0) {
                 next = true;
                 splitter = input[i];
-                load(list, c, input, mark + 1, i, splitter);
+                load(commands, c, input, mark + 1, i, splitter);
                 found = false;
                 splitter = null;
+                System.out.println("block a"+ i);
                 continue;
             }
             if (next) {
+                System.out.println("block b"+i);
                 c = input[i];
                 mark = i;
                 found = true;
             }
             if (c != null && i == input.length - 1 && found) {
+                System.out.println("block c"+i);
                 if (!input[input.length - 1].equals("&")) {
-                    load(list, c, input, mark + 1, input.length, splitter);
+                    load(commands, c, input, mark + 1, input.length, splitter);
+                    System.out.println("block c A"+i);
                 } else {
-                    load(list, c, input, mark + 1, input.length - 1, splitter);
+                    load(commands, c, input, mark + 1, input.length - 1, splitter);
+                    System.out.println("block c B"+i);
                 }
                 found = false;
                 splitter = null;
             }
             next = false;
         }
-        for (CommandWrapper h : list) {
+        for (CommandWrapper h : commands) {
             Command cmd = CommandFactory.createCommand(h.command, h.arg);
             result.add(cmd);
         }

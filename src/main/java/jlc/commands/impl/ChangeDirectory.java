@@ -35,10 +35,16 @@ public class ChangeDirectory extends AbstractCommand implements Command{
             for (int i = 1; i < currentDir.split(SPLITTER).length - 1; i++) {
                 result += SPLITTER + currentDir.split(SPLITTER)[i];
             }
+            
+            if(result.equals("") && System.getProperty("os.name").equals("Linux"))
+                result = "/";
             System.setProperty("user.dir", result);
             return;
         }
-        for (File file : new File(currentDir).listFiles()) {
+        File nextDir = new File(currentDir);
+        System.out.println(currentDir);
+        if(nextDir.listFiles().length != 0)
+        for (File file : nextDir.listFiles()) {
             if (arg.toLowerCase().equals(file.getName().toLowerCase()) && new File(currentDir + SPLITTER + arg).isDirectory()) {
                 System.setProperty("user.dir", currentDir + SPLITTER + arg);
                 return;

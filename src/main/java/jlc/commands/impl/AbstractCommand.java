@@ -15,6 +15,7 @@ import jlc.commands.Command;
  * @author desolation
  */
 public abstract class AbstractCommand implements Command{
+    protected String currentDir = System.getProperty("user.dir");
     protected static int INSTANCE_ID = 0;
     protected static final PrintStream DEFAULT_OUTPUT = System.out;
     protected PrintStream currentOutput = DEFAULT_OUTPUT;
