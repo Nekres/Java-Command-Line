@@ -17,6 +17,7 @@ import jlc.commands.Command;
 public abstract class AbstractCommand implements Command{
     protected String currentDir = System.getProperty("user.dir");
     protected static int INSTANCE_ID = 0;
+    protected final int id = INSTANCE_ID++;
     protected static final PrintStream DEFAULT_OUTPUT = System.out;
     protected PrintStream currentOutput = DEFAULT_OUTPUT;
     protected BufferedWriter bw = new BufferedWriter(new PrintWriter(DEFAULT_OUTPUT));

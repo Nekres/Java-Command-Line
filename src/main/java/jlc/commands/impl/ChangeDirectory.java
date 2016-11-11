@@ -84,7 +84,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
 
     @Override
     public String toString() {
-        return "_CD #ID" + INSTANCE_ID++;
+        return "_CD #ID" + this.id;
     }
 
     @Override
@@ -92,4 +92,9 @@ public class ChangeDirectory extends AbstractCommand implements Command {
         return NAME;
     }
 
+    @Override
+    public int getID() {
+        return this.id;
+    }
+    
 }

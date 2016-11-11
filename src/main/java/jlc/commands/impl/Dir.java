@@ -89,18 +89,23 @@ public class Dir extends AbstractCommand implements Command{
     }
     @Override
     public void setOutputPath(PrintStream path) {
-        bw = new BufferedWriter(new PrintWriter(path));
-        currentOutput = path;
+        this.bw = new BufferedWriter(new PrintWriter(path));
+        this.currentOutput = path;
     }
 
     @Override
     public String toString() {
-        return "_DIR #ID{" + INSTANCE_ID++;
+        return "_DIR #ID{" + this.id;
     }
 
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public int getID() {
+        return this.id;
     }
     
     

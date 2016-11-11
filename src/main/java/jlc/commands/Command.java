@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jlc.commands.impl.Jobs;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.NoSuchCommandException;
 
@@ -22,6 +23,12 @@ public interface Command extends Runnable {
     void invoke() throws BadCommandArgumentException, IOException;//return currentDir if dir not changed
 
     int argsAmount(); //minimal count of args
+    
+    void setOutputPath(PrintStream path);
+
+    int getID();
+
+    String getName();
 
     static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, IOException, NoSuchCommandException {
         if (commands.isEmpty()) {
@@ -33,6 +40,7 @@ public interface Command extends Runnable {
                 public void run() {
                     try {
                         for (Command c : commands) {
+                            boolean success = false;
                             File logDIR = new File(logFilePath + "/logs/" + c.getName().toUpperCase());
                             if (!logDIR.exists()) {
                                 logDIR.mkdirs();
@@ -40,7 +48,9 @@ public interface Command extends Runnable {
                             File logFile = new File(logFilePath + "/logs/" + c.getName().toUpperCase() + "/" + new Date().toString() + c.toString() + ".txt");
                             logFile.createNewFile();
                             c.setOutputPath(new PrintStream(logFile));
+                            Jobs.add(c,c.toString());
                             c.invoke();
+                            Jobs.remove(c.toString());
                         }
                     } catch (IOException e) {
                         System.out.println("Error: no such command.\n");
@@ -58,8 +68,5 @@ public interface Command extends Runnable {
         }
     }
 
-    void setOutputPath(PrintStream path);
-
-    String getName();
 
 }

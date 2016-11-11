@@ -83,12 +83,18 @@ public class DirectoryTree extends AbstractCommand implements Command{
 
     @Override
     public String toString() {
-        return "_TREE #ID{" + INSTANCE_ID++;
+        return "_TREE #ID{" + this.id;
     }
 
     @Override
     public String getName() {
         return NAME;
     }
+
+    @Override
+    public int getID() {
+        return this.id;
+    }
+    
     
 }

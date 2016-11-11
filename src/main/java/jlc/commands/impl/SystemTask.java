@@ -68,12 +68,17 @@ public class SystemTask extends AbstractCommand implements Command{
 
     @Override
     public String toString() {
-        return "_"+ task.get(0) + "#ID{" + INSTANCE_ID++ + "}";
+        return "_"+ task.get(0) + "#ID{" + id + "}";
     }
 
     @Override
     public String getName() {
         return task.get(0);
+    }
+
+    @Override
+    public int getID() {
+        return id;
     }
     
 }

@@ -16,6 +16,7 @@ public class BadCommandArgumentException extends JCLException{
         this.message = message;
     }
     public BadCommandArgumentException(){
+        this.message = "Error: incorrect number of arguments.";
     }
 
     @Override

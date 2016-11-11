@@ -42,6 +42,7 @@ public class JLC {
         settings.add(options.getDirectoryTree());
         DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
+        settings.add(Jobs.NAME);
         ChangeDirectory.NAME = options.getChangeDirectory();
         File logs = new File(options.getLogFilePath());
         if (!logs.exists()){
@@ -95,23 +96,18 @@ public class JLC {
                 load(commands, c, input, mark + 1, i, splitter);
                 found = false;
                 splitter = null;
-                System.out.println("block a"+ i);
                 continue;
             }
             if (next) {
-                System.out.println("block b"+i);
                 c = input[i];
                 mark = i;
                 found = true;
             }
             if (c != null && i == input.length - 1 && found) {
-                System.out.println("block c"+i);
                 if (!input[input.length - 1].equals("&")) {
                     load(commands, c, input, mark + 1, input.length, splitter);
-                    System.out.println("block c A"+i);
                 } else {
                     load(commands, c, input, mark + 1, input.length - 1, splitter);
-                    System.out.println("block c B"+i);
                 }
                 found = false;
                 splitter = null;
@@ -129,6 +125,7 @@ public class JLC {
         CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
+            System.out.println(h.getNext());
         }
         list.add(h);
         c = null;
