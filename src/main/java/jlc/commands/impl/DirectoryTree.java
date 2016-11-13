@@ -6,57 +6,64 @@
 package jlc.commands.impl;
 
 import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.*;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.view.TextStyle;
 
 /**
  *
  * @author desolation
  */
-public class DirectoryTree extends AbstractCommand implements Command{
+public class DirectoryTree extends AbstractCommand implements Command {
+
     public static String NAME = "tree";
     public static final int ARG_AMOUNT = 0;
-    private static int inline = 0;
+    private int summary = -1; // -1 excluding root of the tree
+    private int dirSummary = -1;
+    private final String next = System.lineSeparator();
 
     public DirectoryTree() {
     }
-    
-    private final void check(List<File> list, int brackets) throws BadCommandArgumentException, IOException{
-            for (int i = 0; i < list.size(); i++) {
-                bw.write(list.get(i).getName() + " ");
+
+    private final void check(List<File> list) throws BadCommandArgumentException, IOException {
+        for (File file : list) {
+            if (!Files.isReadable(file.toPath())
+                    || Files.isSymbolicLink(FileSystems.getDefault().getPath(file.getAbsolutePath()))) {
+                continue;
             }
-            bw.write("\n");
-            for (int i = 0; i < list.size(); i++) {
-                if (list.get(i).isDirectory()) {
-                    bw.write(list.get(i).getName());
-                    print(bw);
-                    bw.write("{("+ ++brackets + ")");
-                    inline++;
-                    if (list.get(i).listFiles() != null) {
-                        check(Arrays.asList(list.get(i).listFiles()),brackets);
-                    }
-                   // print(bw);
-                    bw.write("}(" + --brackets + ")");
+            summary++;
+            bw.write(file.getName());
+            bw.write(next);
+            bw.flush();
+            if (file.isDirectory()) {
+                dirSummary++;
+                if (file.listFiles().length != 0 && file.listFiles() != null) {
+                    check(Arrays.asList(file.listFiles()));
                 }
             }
-            inline--;
-    }
-
-    private final void print(BufferedWriter bw) throws IOException{
-        for(int i = 0; i < inline;i++){
-            bw.write(" ");
         }
     }
 
     @Override
     public void invoke() throws BadCommandArgumentException, IOException {
-        List<File> list = Arrays.asList(new File(System.getProperty("user.dir")));
-        check(list,0);
-        if(!currentOutput.equals(DEFAULT_OUTPUT))
+        List<File> list = Arrays.asList(new File(System.getProperty("user.dir") + System.getProperty("file.separator")));
+        check(list);
+        String summary = "Summary:" + this.summary + ", directories:"
+                + dirSummary + ", files:" + (this.summary - dirSummary) + next;
+        if (!System.getProperty("os.name").contains("Windows")) {
+            bw.write(TextStyle.colorText(summary, TextStyle.Color.MAGENTA));
+        } else {
+            bw.write(summary);
+        }
+        if (!currentOutput.equals(DEFAULT_OUTPUT)) {
             bw.close();
-        else
+        } else {
             bw.flush();
+        }
     }
 
     @Override
@@ -73,7 +80,7 @@ public class DirectoryTree extends AbstractCommand implements Command{
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        
+
     }
 
     @Override
@@ -83,7 +90,7 @@ public class DirectoryTree extends AbstractCommand implements Command{
 
     @Override
     public String toString() {
-        return "_TREE #ID{" + this.id;
+        return "_TREE#ID{" + this.id;
     }
 
     @Override
@@ -95,6 +102,5 @@ public class DirectoryTree extends AbstractCommand implements Command{
     public int getID() {
         return this.id;
     }
-    
-    
+
 }

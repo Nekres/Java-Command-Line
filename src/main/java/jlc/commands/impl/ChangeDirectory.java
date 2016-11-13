@@ -7,6 +7,7 @@ package jlc.commands.impl;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Arrays;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -15,15 +16,17 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class ChangeDirectory extends AbstractCommand implements Command {
-
     public static String NAME = "cd";
     private static final int ARG_AMOUNT = 1;
-    private static final String SPLITTER = System.getProperty("file.separator");
+    private static String SPLITTER = System.getProperty("file.separator");
     private static final String RETURN = "..";
-    private String arg;
-
-    public ChangeDirectory(String arg) {
-        this.arg = arg;
+    private String arg = "";
+    
+    public ChangeDirectory(String[] arg) {
+        for (String a : arg) {
+            this.arg = this.arg.concat(a + " ");
+        }
+        this.arg = this.arg.trim();
     }
 
     public ChangeDirectory() {
@@ -31,31 +34,31 @@ public class ChangeDirectory extends AbstractCommand implements Command {
 
     @Override
     public void invoke() throws BadCommandArgumentException {
+        System.out.println(System.getProperty("os.name"));
         String currentDir = System.getProperty("user.dir");
-        if (arg.equals(RETURN) && currentDir.split(SPLITTER).length > 1) {
-            String result = "", dirs[] = currentDir.split(SPLITTER);
-            for (int i = 1; i < dirs.length - 1; i++) {
-                if (!currentDir.equals(SPLITTER)) {
-                    result += SPLITTER + dirs[i];
-                } else {
-                    result += dirs[i];
-                }
-            }
-
-            if (result.equals("") && System.getProperty("os.name").equals("Linux")) {
-                result = SPLITTER;
+        String dat[], result = "";
+        if (SPLITTER.equals("\\"))
+        dat = currentDir.split(SPLITTER+SPLITTER);
+        else dat = currentDir.split(SPLITTER);
+        System.out.println(currentDir);
+        if (arg.equals(RETURN) && dat.length > 1) {
+            if (dat.length >= 3) {
+                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER));
+            } else {
+                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER) + 1);
             }
             System.setProperty("user.dir", result);
             return;
         }
         File nextDir = new File(currentDir);
+        
         if (nextDir.listFiles().length != 0) {
             for (File file : nextDir.listFiles()) {
-                if (arg.toLowerCase().equals(file.getName().toLowerCase()) && file.isDirectory()) {
-                    if (!currentDir.equals(SPLITTER)) {
-                        System.setProperty("user.dir", currentDir + SPLITTER + arg);
+                if (arg.toLowerCase().equals(file.getName().toLowerCase()) && file.isDirectory() && !file.isHidden()) {
+                    if (!currentDir.substring(currentDir.length()-1, currentDir.length()).equals(SPLITTER)) {
+                        System.setProperty("user.dir", currentDir + SPLITTER + file.getName());
                     } else {
-                        System.setProperty("user.dir", currentDir + arg);
+                        System.setProperty("user.dir", currentDir + file.getName());
                     }
                     return;
                 }
@@ -84,7 +87,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
 
     @Override
     public String toString() {
-        return "_CD #ID" + this.id;
+        return "_CD#ID" + this.id;
     }
 
     @Override

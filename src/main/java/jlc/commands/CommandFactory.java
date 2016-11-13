@@ -5,6 +5,7 @@
  */
 package jlc.commands;
 
+import java.util.Arrays;
 import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
@@ -17,8 +18,9 @@ public class CommandFactory implements ThreadFactory {
 
     public static Command createCommand(String command, String[] arg) throws BadCommandArgumentException {
         if (command.equals(ChangeDirectory.NAME)) {
-            if (arg.length == 1) {
-                return new ChangeDirectory(arg[0]);
+            if (arg.length > 0) {
+                System.out.println(Arrays.toString(arg));
+                return new ChangeDirectory(arg);
             } else {
                 throw new BadCommandArgumentException();
             }

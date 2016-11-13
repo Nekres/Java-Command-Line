@@ -39,20 +39,22 @@ public interface Command extends Runnable {
                 @Override
                 public void run() {
                     try {
+                        String f_separator = System.getProperty("file.separator");
                         for (Command c : commands) {
                             boolean success = false;
-                            File logDIR = new File(logFilePath + "/logs/" + c.getName().toUpperCase());
+                            File logDIR = new File(logFilePath + f_separator+"logs"+f_separator + c.getName().toUpperCase());
                             if (!logDIR.exists()) {
                                 logDIR.mkdirs();
                             }
-                            File logFile = new File(logFilePath + "/logs/" + c.getName().toUpperCase() + "/" + new Date().toString() + c.toString() + ".txt");
-                            logFile.createNewFile();
+                            File logFile = new File(logFilePath + f_separator+"logs"+f_separator + c.getName().toUpperCase() + f_separator + new Date().toString().replace(':', '.') + c.toString() + ".txt");
+                           logFile.createNewFile();
                             c.setOutputPath(new PrintStream(logFile));
                             Jobs.add(c,c.toString());
                             c.invoke();
                             Jobs.remove(c.toString());
                         }
                     } catch (IOException e) {
+                        e.printStackTrace();
                         System.out.println("Error: no such command.\n");
                     } catch (BadCommandArgumentException ex) {
                         System.out.println("Error: bad args.");

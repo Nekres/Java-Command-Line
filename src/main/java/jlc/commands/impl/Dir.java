@@ -50,7 +50,7 @@ public class Dir extends AbstractCommand implements Command{
                 bw.write(f.getName());
                 printInfo(f.getName().length());
                     bw.write(DATE.format(new Date(f.lastModified())));
-                    bw.write("\n");
+                    bw.write(System.lineSeparator());
                 }
             }
         }
@@ -66,7 +66,7 @@ public class Dir extends AbstractCommand implements Command{
     private final void printInfo(int length) throws IOException{
         int max = 30;
         if(length > max)
-            bw.write("\n");
+            bw.write(System.lineSeparator());
         for(int i = 0; i < max-length;i++){
             bw.write(" ");
         }
@@ -95,7 +95,7 @@ public class Dir extends AbstractCommand implements Command{
 
     @Override
     public String toString() {
-        return "_DIR #ID{" + this.id;
+        return "_DIR#ID{" + this.id;
     }
 
     @Override

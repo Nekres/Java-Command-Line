@@ -9,9 +9,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
@@ -33,9 +31,9 @@ public class Jobs extends AbstractCommand implements Command {
     
     @Override
     public void invoke() throws BadCommandArgumentException, IOException {
-        System.out.println("+Name\tID+");
+        System.out.println("+Name\t\tID+");
         for(Command c : map.values()){
-            System.out.println("+"+c.getName()+"\t"+c.getID());
+            System.out.println(""+c.getName()+"\t\t"+c.getID());
         }
     }
 

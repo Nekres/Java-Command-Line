@@ -6,9 +6,7 @@
 package jlc;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.exceptions.BadCommandArgumentException;
@@ -21,16 +19,23 @@ import jlc.parse.impl.JAXBParser;
  * @author desolation
  */
 public class JLC {
-
-    private static final Scanner SCAN = new Scanner(System.in);
-    private static String currentDir = System.getProperty("user.dir");
     private static List<String> settings = new ArrayList<>();
-
     /**
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
+        System.out.println(System.getProperty("console.encoding"));
+        Scanner scan;
+        if (System.getProperty("os.name").contains("Windows")) {
+            scan = new Scanner(System.in, "866");
+        } else {
+            scan = new Scanner(System.in,"UTF-8");
+        }
+        Map<String, String> map = System.getenv();
+        for(String key : map.keySet()){
+            System.out.println("key:"+ key +",value:"+map.get(key));
+        }
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
@@ -45,8 +50,8 @@ public class JLC {
         settings.add(Jobs.NAME);
         ChangeDirectory.NAME = options.getChangeDirectory();
         File logs = new File(options.getLogFilePath());
-        if (!logs.exists()){
-            if(!logs.mkdirs()){
+        if (!logs.exists()) {
+            if (!logs.mkdirs()) {
                 System.out.println("broken logfile path. configure settings.xml");;
                 System.exit(0);
             }
@@ -55,12 +60,11 @@ public class JLC {
         System.out.println("Java command line.");
         while (running) {
             System.out.print(System.getProperty("user.dir") + ":");
-            String command = SCAN.nextLine().trim();
+            String command = scan.nextLine().trim();
             String arr[] = command.split(" ");
             daemon = arr[arr.length - 1].equals("&");
-            if (daemon) {
-                System.out.println("Running as a daemon.");
-            }
+            if(command.equals("quit"))
+                System.exit(0);
             try {
                 List<Command> commandList = analyze(settings, arr);
                 Command.execute(commandList, daemon, options.getLogFilePath());
@@ -74,7 +78,6 @@ public class JLC {
         String or = "||";
         String and = "&&";
         List<CommandWrapper> commands = new ArrayList<>();
-        List<String> splitters = new ArrayList<>(); // && or ||
         List<Command> result = new ArrayList<>();
         String c = input[0];
         int mark = 0;
