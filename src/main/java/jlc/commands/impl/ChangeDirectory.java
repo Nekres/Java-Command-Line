@@ -34,13 +34,11 @@ public class ChangeDirectory extends AbstractCommand implements Command {
 
     @Override
     public void invoke() throws BadCommandArgumentException {
-        System.out.println(System.getProperty("os.name"));
         String currentDir = System.getProperty("user.dir");
         String dat[], result = "";
         if (SPLITTER.equals("\\"))
         dat = currentDir.split(SPLITTER+SPLITTER);
         else dat = currentDir.split(SPLITTER);
-        System.out.println(currentDir);
         if (arg.equals(RETURN) && dat.length > 1) {
             if (dat.length >= 3) {
                 result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER));
