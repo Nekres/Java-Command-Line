@@ -25,16 +25,11 @@ public class JLC {
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        System.out.println(System.getProperty("console.encoding"));
         Scanner scan;
         if (System.getProperty("os.name").contains("Windows")) {
             scan = new Scanner(System.in, "866");
         } else {
             scan = new Scanner(System.in,"UTF-8");
-        }
-        Map<String, String> map = System.getenv();
-        for(String key : map.keySet()){
-            System.out.println("key:"+ key +",value:"+map.get(key));
         }
         File file = new File("settings.xml");
         if (!file.exists()) {
@@ -73,12 +68,13 @@ public class JLC {
             }
         }
     }
-
+    //
     public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
         String or = "||";
         String and = "&&";
         List<CommandWrapper> commands = new ArrayList<>();
         List<Command> result = new ArrayList<>();
+        List<String> splitters = new ArrayList<>();
         String c = input[0];
         int mark = 0;
         boolean next = false, found = true;

@@ -7,9 +7,9 @@ package jlc.commands.impl;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Arrays;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
 
 /**
  *
@@ -81,6 +81,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
 
     @Override
     public void setOutputPath(PrintStream path) {
+        
     }
 
     @Override
@@ -96,6 +97,16 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     @Override
     public int getID() {
         return this.id;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
+        invoke();
+        }catch(JCLException e){
+            return false;
+        }
+        return true;
     }
     
 }

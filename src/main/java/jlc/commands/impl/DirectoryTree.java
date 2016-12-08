@@ -6,12 +6,12 @@
 package jlc.commands.impl;
 
 import java.io.*;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.util.*;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
 import jlc.view.TextStyle;
 
 /**
@@ -101,6 +101,16 @@ public class DirectoryTree extends AbstractCommand implements Command {
     @Override
     public int getID() {
         return this.id;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
+            invoke();
+        }catch(JCLException e){
+            return false;
+        }
+        return true;
     }
 
 }

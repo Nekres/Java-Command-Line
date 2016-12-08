@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
 
 /**
  *
@@ -67,6 +68,16 @@ public class Jobs extends AbstractCommand implements Command {
     @Override
     public int getID() {
         return 0;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
+            invoke();
+        }catch(JCLException e){
+            return false;
+        }
+        return true;
     }
     
 }

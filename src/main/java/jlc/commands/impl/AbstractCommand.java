@@ -6,7 +6,6 @@
 package jlc.commands.impl;
 
 import java.io.BufferedWriter;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -25,11 +24,22 @@ public abstract class AbstractCommand implements Command{
     protected static final PrintStream DEFAULT_OUTPUT = System.out;
     protected PrintStream currentOutput = DEFAULT_OUTPUT;
     protected BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(DEFAULT_OUTPUT,Charset.forName(enc))));
-
+    protected String delim;
     @Override
     public void setOutputPath(PrintStream path){
         bw = new BufferedWriter(new PrintWriter(path));
         currentOutput = path;
     }
+
+    @Override
+    public String getSeparator(){
+        return delim;
+    }
+
+    @Override
+    public void setSeparator(String delim){
+        this.delim = delim;
+    }
+    
     
 }

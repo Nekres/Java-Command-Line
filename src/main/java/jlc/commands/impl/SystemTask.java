@@ -16,6 +16,7 @@ import jlc.exceptions.BadCommandArgumentException;
  * @author desolation
  */
 public class SystemTask extends AbstractCommand implements Command{
+    private boolean successFinished = true;
     private ArrayList<String> task = new ArrayList<>();
     public SystemTask(String task, String[] args) {
         this.task.add(task);
@@ -54,10 +55,12 @@ public class SystemTask extends AbstractCommand implements Command{
                 por.run();
                 p.waitFor();
             } catch (InterruptedException ex) {
+                successFinished = false;
                 Thread.currentThread().interrupt();
                 bw.write("The command is aborted.");
                 bw.flush();
             } catch (IOException ex) {
+                successFinished = false;
                 bw.write("Error: no such command.\n");
                 bw.flush();
             }
@@ -80,5 +83,12 @@ public class SystemTask extends AbstractCommand implements Command{
     public int getID() {
         return id;
     }
+
+    @Override
+    public Boolean call() throws Exception {
+            run();
+        return successFinished;
+    }
+    
     
 }

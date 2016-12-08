@@ -12,6 +12,7 @@ import java.text.*;
 import java.util.*;
 import java.util.regex.PatternSyntaxException;
 import jlc.commands.Filter;
+import jlc.exceptions.JCLException;
 
 /**
  *
@@ -106,6 +107,16 @@ public class Dir extends AbstractCommand implements Command{
     @Override
     public int getID() {
         return this.id;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
+            invoke();
+        }catch(JCLException e){
+            return false;
+        }
+        return true;
     }
     
     
