@@ -19,7 +19,6 @@ public class CommandFactory implements ThreadFactory {
     public static Command createCommand(String command, String[] arg) throws BadCommandArgumentException {
         if (command.equals(ChangeDirectory.NAME)) {
             if (arg.length > 0) {
-                System.out.println(Arrays.toString(arg));
                 return new ChangeDirectory(arg);
             } else {
                 throw new BadCommandArgumentException();

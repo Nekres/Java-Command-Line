@@ -15,7 +15,6 @@ import java.util.concurrent.Future;
 import jlc.commands.impl.Jobs;
 import jlc.commands.impl.SystemTask;
 import jlc.exceptions.BadCommandArgumentException;
-import jlc.exceptions.JCLException;
 import jlc.exceptions.NoSuchCommandException;
 
 /**
@@ -29,15 +28,33 @@ public interface Command extends Runnable,Callable<Boolean> {
     void setSeparator(String delim);
     
     String getSeparator();
-
-    int argsAmount(); //minimal count of args
-    
-    void setOutputPath(PrintStream path);
+    /**
+     * @return - returns minimal count of args
+     */
+    int argsAmount();
+    /**
+     * @param path - stream where you redirecting sysout of command
+     */
+    void setOutputPath(OutputStream path);
 
     int getID();
-
+    /**
+     * 
+     * @return - returns the name of the specific command
+     */
     String getName();
-
+    /**
+     * Executs commands one by one if as daemons(output will be written to file) 
+     * or non-daemons(ouput will be written to System.in). 
+     * @param commands - list of the commands to execute
+     * @param daemon - value to choose execution type
+     * @param logFilePath - directory where logs will be written
+     * @throws BadCommandArgumentException
+     * @throws IOException
+     * @throws NoSuchCommandException
+     * @throws InterruptedException
+     * @throws ExecutionException 
+     */
     static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, IOException, NoSuchCommandException, InterruptedException, ExecutionException {
         if (commands.isEmpty()) {
             throw new BadCommandArgumentException("Enter the command.");
@@ -54,14 +71,16 @@ public interface Command extends Runnable,Callable<Boolean> {
                                 logDIR.mkdirs();
                             }
                             File logFile = new File(logFilePath + f_separator+"logs"+f_separator + c.getName().toUpperCase() + f_separator + new Date().toString().replace(':', '.') + c.toString() + ".txt");
-                           logFile.createNewFile();
-                            c.setOutputPath(new PrintStream(logFile));
+                            logFile.createNewFile();
+                            try(FileOutputStream fos = new FileOutputStream(logFile)){
+                            c.setOutputPath(fos);
                             Jobs.add(c,c.toString());
                             if(c.getClass().equals(SystemTask.class)){
                                 c.run();
                             }
                             else
                             c.invoke();
+                            }
                             Jobs.remove(c.toString());
                         }
                     } catch (IOException e) {
@@ -84,11 +103,9 @@ public interface Command extends Runnable,Callable<Boolean> {
                         if(command.getSeparator().equals("&&"))
                             break;
                     }
-                        
                 }
                 exec.shutdown();
         }
     }
-
 
 }

@@ -8,10 +8,11 @@ package jlc.commands.impl;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.text.*;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import jlc.commands.Filter;
 import jlc.exceptions.JCLException;
 
 /**
@@ -25,7 +26,7 @@ public class Dir extends AbstractCommand implements Command{
     private String arg;
     static{ DATE.setTimeZone(TimeZone.getTimeZone("UTC"));}
         
-    public Dir(String arg) {
+    public Dir(final String arg) {
         this.arg = arg;
     }
     public Dir(){
@@ -33,7 +34,8 @@ public class Dir extends AbstractCommand implements Command{
     
     @Override
     public void invoke() throws BadCommandArgumentException, IOException {
-        File file = new File(System.getProperty("user.dir"));
+        try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
+            File file = new File(System.getProperty("user.dir"));
         if (file.isDirectory()){
             if (arg != null){
             try{
@@ -44,27 +46,22 @@ public class Dir extends AbstractCommand implements Command{
                 throw new BadCommandArgumentException("Bad argument \"" + arg + "\"");
             }
             }
-            else{
+            else {
                 String[] list = file.list();
-                Arrays.sort(list,String.CASE_INSENSITIVE_ORDER);
-                for(File f : file.listFiles()){
-                bw.write(f.getName());
-                printInfo(f.getName().length());
+                Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+                for (File f : file.listFiles()) {
+                    bw.write(f.getName());
+                    printInfo(f.getName().length(),bw);
                     bw.write(DATE.format(new Date(f.lastModified())));
                     bw.write(System.lineSeparator());
+                    bw.flush();
                 }
             }
         }
-        else
-            bw.write("Файлов нет.");
-        if (!currentOutput.equals(DEFAULT_OUTPUT)){
-            bw.close();
         }
-        else
-            bw.flush();
-    }
+        }
 
-    private final void printInfo(int length) throws IOException{
+    private final void printInfo(final int length, final BufferedWriter bw) throws IOException{
         int max = 30;
         if(length > max)
             bw.write(System.lineSeparator());
@@ -88,12 +85,6 @@ public class Dir extends AbstractCommand implements Command{
             throw new RuntimeException(ex);
         }
     }
-    @Override
-    public void setOutputPath(PrintStream path) {
-        this.bw = new BufferedWriter(new PrintWriter(path));
-        this.currentOutput = path;
-    }
-
     @Override
     public String toString() {
         return "_DIR#ID{" + this.id;
@@ -119,6 +110,18 @@ public class Dir extends AbstractCommand implements Command{
         return true;
     }
     
+    private final class Filter implements FilenameFilter{
+        
+    private Pattern pattern;
+
+    public Filter(final String regex) {
+        this.pattern = Pattern.compile(regex);
+    }
+    @Override
+    public boolean accept(File dir, String name) {
+        return pattern.matcher(name).matches();
+    }
     
+}
     
 }

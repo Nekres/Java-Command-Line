@@ -13,32 +13,39 @@ import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
 import jlc.exceptions.NoSuchCommandException;
 import jlc.parse.impl.JAXBParser;
+import jlc.view.TextStyle;
+import org.apache.commons.io.input.CloseShieldInputStream;
 
 /**
  *
- * @author desolation
+ * @author Миша Шикоряк
+ * @version 0.9
  */
 public class JLC {
+    private static final String OS_ENCODING = System.getProperty("os.name").contains("Windows") ? "866" : "UTF-8";
+    private static final String OR = "||".intern(); 
+    private static final String AND = "&&".intern();
     private static List<String> settings = new ArrayList<>();
+    
     /**
+     * Java Command Line allows user to run programs by typing their names.
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
-        Scanner scan;
-        if (System.getProperty("os.name").contains("Windows")) {
-            scan = new Scanner(System.in, "866");
-        } else {
-            scan = new Scanner(System.in,"UTF-8");
-        }
+        RemoteMode rm = new RemoteMode(4567);
+        //PipedInputStream ps = new PipedInputStream(rm.getPos());
+        Thread t = new Thread(rm);
+        //t.start();
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
             System.out.println("Running with default settings...");
         }
-        Settings options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from "settings.xml" file
+        
+        Settings options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from settings.xml file
         settings.add(options.getDir());
-        Dir.NAME = options.getDir();
+        Dir.NAME = options.getDir(); //Setting up the new name of command, if user modified it
         settings.add(options.getDirectoryTree());
         DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
@@ -51,37 +58,40 @@ public class JLC {
                 System.exit(0);
             }
         }
-        boolean running = true, daemon = false;
+        boolean daemon = false;
         System.out.println("Java command line.");
-        while (running) {
-            System.out.print(System.getProperty("user.dir") + ":");
-            String command = scan.nextLine().trim();
-            String arr[] = command.split(" ");
+        while (true) {
+            String currentDirectory = System.getProperty("user.dir").intern();
+            CloseShieldInputStream close = new CloseShieldInputStream(System.in);
+            Scanner scan = new Scanner(close,OS_ENCODING);
+            System.out.print(TextStyle.colorText(currentDirectory + ":",TextStyle.Color.GREEN));
+            String command = scan.nextLine().intern().trim();
+            String arr[] = command.intern().split(" ");
             daemon = arr[arr.length - 1].equals("&");
-            if(command.equals("quit"))
+            if(command.equals("quit")){
+                System.out.println("Bye.\nWe'll miss you.");
                 System.exit(0);
+            }
             try {
                 List<Command> commandList = analyze(settings, arr);
                 Command.execute(commandList, daemon, options.getLogFilePath());
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
             }
+            scan.close();
         }
     }
     //
     public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
-        String or = "||";
-        String and = "&&";
         List<CommandWrapper> commands = new ArrayList<>();
         List<Command> result = new ArrayList<>();
-        List<String> splitters = new ArrayList<>();
         String c = input[0];
         int mark = 0;
         boolean next = false, found = true;
         String splitter = null;
         for (int i = 0; i < input.length; i++) {
             for (String ks : settings) {
-                if (input[i].equals(ks)) {
+                if (input[i] == ks.intern()) {  //if (input[i].equals(ks)) { look for a bug here
                     c = ks;
                     mark = i; //индекс комманды
                     found = true;
@@ -89,7 +99,7 @@ public class JLC {
                     break;
                 }
             }
-            if ((input[i].equals(or) || input[i].equals(and)) && i != 0) {
+            if ((input[i].intern() == OR || input[i].intern() == AND) && i != 0) {
                 next = true;
                 splitter = input[i];
                 load(commands, c, input, mark + 1, i, splitter);

@@ -16,10 +16,10 @@ import jlc.exceptions.JCLException;
  * @author desolation
  */
 public class ChangeDirectory extends AbstractCommand implements Command {
-    public static String NAME = "cd";
     private static final int ARG_AMOUNT = 1;
-    private static String SPLITTER = System.getProperty("file.separator");
+    private static final String SPLITTER = System.getProperty("file.separator");
     private static final String RETURN = "..";
+    public static String NAME = "cd";
     private String arg = "";
     
     public ChangeDirectory(String[] arg) {
@@ -41,15 +41,14 @@ public class ChangeDirectory extends AbstractCommand implements Command {
         else dat = currentDir.split(SPLITTER);
         if (arg.equals(RETURN) && dat.length > 1) {
             if (dat.length >= 3) {
-                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER));
+                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER)).intern();
             } else {
-                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER) + 1);
+                result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER) + 1).intern();
             }
             System.setProperty("user.dir", result);
             return;
         }
         File nextDir = new File(currentDir);
-        
         if (nextDir.listFiles().length != 0) {
             for (File file : nextDir.listFiles()) {
                 if (arg.toLowerCase().equals(file.getName().toLowerCase()) && file.isDirectory() && !file.isHidden()) {
@@ -77,11 +76,6 @@ public class ChangeDirectory extends AbstractCommand implements Command {
         } catch (BadCommandArgumentException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-
-    @Override
-    public void setOutputPath(PrintStream path) {
-        
     }
 
     @Override

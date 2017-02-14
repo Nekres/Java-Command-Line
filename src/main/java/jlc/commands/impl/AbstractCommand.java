@@ -5,41 +5,41 @@
  */
 package jlc.commands.impl;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import jlc.commands.Command;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
  *
  * @author desolation
  */
 public abstract class AbstractCommand implements Command{
-    protected final String enc = System.getProperty("os.name").contains("Windows") ? "cp866" : "UTF-8";
+    protected static final String ENCODING = System.getProperty("os.name").contains("Windows") ? "cp866" : "UTF-8";
+    protected final CloseShieldOutputStream DEFAULT_OUTPUT = new CloseShieldOutputStream(System.out);
     protected String currentDir = System.getProperty("user.dir");
     protected static int INSTANCE_ID = 0;
     protected final int id = INSTANCE_ID++;
-    protected static final PrintStream DEFAULT_OUTPUT = System.out;
-    protected PrintStream currentOutput = DEFAULT_OUTPUT;
-    protected BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(DEFAULT_OUTPUT,Charset.forName(enc))));
+    protected OutputStream currentOutput = DEFAULT_OUTPUT;
     protected String delim;
+    
     @Override
-    public void setOutputPath(PrintStream path){
-        bw = new BufferedWriter(new PrintWriter(path));
+    public void setOutputPath(OutputStream path){
         currentOutput = path;
     }
-
+    /**
+     * @return - returns a logical separator "and" or "or"
+     */
     @Override
     public String getSeparator(){
         return delim;
     }
-
+    
     @Override
     public void setSeparator(String delim){
         this.delim = delim;
     }
+
     
     
 }

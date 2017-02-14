@@ -29,7 +29,7 @@ public class ProcessOutputReader{
     public void run() {
         try {
             InputStreamReader isr = new InputStreamReader(in);
-            BufferedWriter bw = new BufferedWriter(new PrintWriter(out));
+            BufferedWriter bw = new BufferedWriter(new PrintWriter(out)); //ресурсы закрой
             BufferedReader br = new BufferedReader(isr);
             String line;
             while ((line = br.readLine()) != null) {

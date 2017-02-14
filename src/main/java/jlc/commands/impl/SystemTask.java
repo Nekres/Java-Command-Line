@@ -6,6 +6,7 @@
 package jlc.commands.impl;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import jlc.ProcessOutputReader;
 import jlc.commands.Command;
@@ -46,7 +47,9 @@ public class SystemTask extends AbstractCommand implements Command{
 
     @Override
     public void run() {
+        try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
         ProcessBuilder pb = new ProcessBuilder(task);
+        pb.redirectErrorStream(true);
         pb.directory(new File(System.getProperty("user.dir")));
         try {
             try {
@@ -66,6 +69,9 @@ public class SystemTask extends AbstractCommand implements Command{
             }
         } catch (IOException ex1) {
             throw new RuntimeException(ex1);
+        }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

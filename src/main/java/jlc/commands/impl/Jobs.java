@@ -7,11 +7,12 @@ package jlc.commands.impl;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import jlc.commands.Command;
+import static jlc.commands.impl.AbstractCommand.ENCODING;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
 
@@ -32,21 +33,20 @@ public class Jobs extends AbstractCommand implements Command {
     
     @Override
     public void invoke() throws BadCommandArgumentException, IOException {
-        System.out.println("+Name\t\tID+");
+        try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING)))){
+        bw.write("+Name\t\tID+");
+        bw.newLine();
         for(Command c : map.values()){
-            System.out.println(""+c.getName()+"\t\t"+c.getID());
+            bw.write(""+c.getName()+"\t\t"+c.getID());
+            bw.newLine();
+            bw.flush();
+        }
         }
     }
 
     @Override
     public int argsAmount() {
         return 0;
-    }
-
-    @Override
-    public void setOutputPath(PrintStream path) {
-        this.currentOutput = path;
-        this.bw = new BufferedWriter(new PrintWriter(path));
     }
 
     @Override
