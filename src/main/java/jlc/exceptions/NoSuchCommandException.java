@@ -17,7 +17,7 @@ public class NoSuchCommandException extends JCLException{
 
     @Override
     public String getMessage() {
-        return message; //To change body of generated methods, choose Tools | Templates.
+        return message; 
     }
     
 }

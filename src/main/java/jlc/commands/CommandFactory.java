@@ -45,6 +45,15 @@ public class CommandFactory implements ThreadFactory {
                 throw new BadCommandArgumentException();
             }
         }
+        if (command.equals(RemoteMode.NAME)){
+            if (arg.length == 0){
+                return new RemoteMode(RemoteMode.DEFAULT_PORT);
+            }
+            else if (arg.length == 1){
+                return new RemoteMode(Integer.parseInt(arg[0]));
+            }
+            throw new BadCommandArgumentException();
+        }
         if (arg.length > 0) {
             return new SystemTask(command, arg);
         } else {

@@ -6,7 +6,6 @@
 package jlc.commands.impl;
 
 import java.io.OutputStream;
-import java.io.PrintStream;
 import jlc.commands.Command;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 
@@ -22,6 +21,7 @@ public abstract class AbstractCommand implements Command{
     protected final int id = INSTANCE_ID++;
     protected OutputStream currentOutput = DEFAULT_OUTPUT;
     protected String delim;
+    
     
     @Override
     public void setOutputPath(OutputStream path){

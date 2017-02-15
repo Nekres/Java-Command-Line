@@ -12,9 +12,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jlc.commands.impl.Jobs;
 import jlc.commands.impl.SystemTask;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
 import jlc.exceptions.NoSuchCommandException;
 
 /**
@@ -22,7 +25,7 @@ import jlc.exceptions.NoSuchCommandException;
  * @author desolation
  */
 public interface Command extends Runnable,Callable<Boolean> {
-
+    String DIRECTORY_SEPARATOR = System.getProperty("file.separator");
     void invoke() throws BadCommandArgumentException, IOException;//return currentDir if dir not changed
     
     void setSeparator(String delim);
@@ -31,7 +34,6 @@ public interface Command extends Runnable,Callable<Boolean> {
     /**
      * @return - returns minimal count of args
      */
-    int argsAmount();
     /**
      * @param path - stream where you redirecting sysout of command
      */
@@ -50,12 +52,9 @@ public interface Command extends Runnable,Callable<Boolean> {
      * @param daemon - value to choose execution type
      * @param logFilePath - directory where logs will be written
      * @throws BadCommandArgumentException
-     * @throws IOException
      * @throws NoSuchCommandException
-     * @throws InterruptedException
-     * @throws ExecutionException 
      */
-    static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, IOException, NoSuchCommandException, InterruptedException, ExecutionException {
+    static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, NoSuchCommandException, InterruptedException, ExecutionException {
         if (commands.isEmpty()) {
             throw new BadCommandArgumentException("Enter the command.");
         }
@@ -64,37 +63,39 @@ public interface Command extends Runnable,Callable<Boolean> {
                 @Override
                 public void run() {
                     try {
-                        String f_separator = System.getProperty("file.separator");
+                        ExecutorService exec = Executors.newFixedThreadPool(1);
                         for (Command c : commands) {
-                            File logDIR = new File(logFilePath + f_separator+"logs"+f_separator + c.getName().toUpperCase());
+                            File logDIR = new File(logFilePath + DIRECTORY_SEPARATOR+"logs"+DIRECTORY_SEPARATOR + c.getName().toUpperCase());
                             if (!logDIR.exists()) {
                                 logDIR.mkdirs();
                             }
-                            File logFile = new File(logFilePath + f_separator+"logs"+f_separator + c.getName().toUpperCase() + f_separator + new Date().toString().replace(':', '.') + c.toString() + ".txt");
+                            File logFile = new File(logFilePath + DIRECTORY_SEPARATOR+"logs"+DIRECTORY_SEPARATOR + c.getName().toUpperCase() + DIRECTORY_SEPARATOR + new Date().toString().replace(':', '.') + c.toString() + ".txt");
                             logFile.createNewFile();
                             try(FileOutputStream fos = new FileOutputStream(logFile)){
                             c.setOutputPath(fos);
                             Jobs.add(c,c.toString());
-                            if(c.getClass().equals(SystemTask.class)){
-                                c.run();
+                            Future<Boolean> result = exec.submit((Callable)c);
+                            if(!result.get().booleanValue()){
+                            if(c.getSeparator() == null)
+                            break;
+                            if(c.getSeparator().equals("&&"))
+                            break;
                             }
-                            else
-                            c.invoke();
-                            }
+                    }
                             Jobs.remove(c.toString());
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                         System.out.println("Error: no such command.\n");
-                    } catch (BadCommandArgumentException ex) {
-                        System.out.println("Error: bad args.");
+                    } catch (InterruptedException ex) {
+                    } catch (ExecutionException ex) {
                     }
                 }
             });
             t.setDaemon(true);
             t.start();
         } else {
-                ExecutorService exec = Executors.newFixedThreadPool(commands.size());
+                ExecutorService exec = Executors.newFixedThreadPool(1);
                 for(Command command : commands){
                     Future<Boolean> result = exec.submit((Callable)command);
                     if(!result.get().booleanValue()){

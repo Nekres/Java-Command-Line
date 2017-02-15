@@ -7,24 +7,25 @@ package jlc.commands.impl;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import jlc.JLC;
 import jlc.commands.Command;
-import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.JCLException;
+import jlc.parse.CLParser;
+import jlc.view.TextStyle;
 
 /**
  *
  * @author desolation
  */
 public class RemoteMode extends AbstractCommand implements Command{
-    public static final List<EchoThread> CLIENT_LIST = new ArrayList<>();
+    public static final String NAME = "remote".intern();
+    public static final int DEFAULT_PORT = 5000;
     public static boolean ENABLED = true;
-    private static final PipedOutputStream pos = new PipedOutputStream();
-    private final String name = "Remote mode";
     private ServerSocket server;
     private final int port;
-    private static PrintWriter pw = new PrintWriter(pos);
+    private boolean successFinished = true;
 
     public RemoteMode(int port){
         this.port = port;
@@ -32,13 +33,8 @@ public class RemoteMode extends AbstractCommand implements Command{
     
 
     @Override
-    public void invoke() throws BadCommandArgumentException, IOException {
+    public void invoke() {
         this.run();
-    }
-
-    @Override
-    public int argsAmount() {
-        return 0;
     }
 
     @Override
@@ -48,48 +44,56 @@ public class RemoteMode extends AbstractCommand implements Command{
 
     @Override
     public String getName() {
-        return this.name;
+        return NAME;
     }
 
     @Override
     public void run() {
         try {
             server = new ServerSocket(port);
-            System.out.println("Remote mode is listening for incoming connections on "+ port +" port...");
+            System.out.println("\nRemote mode is listening for incoming connections on "+ port +" port...");
         } catch (IOException ex) {
             System.out.println("could not listen on port: "+ port);
             System.out.println("Try to use another port.");
+            successFinished = false;
             return;
         }
-        while(true){
-            try(Socket s = server.accept()) {
+            try{
+                Socket s = server.accept();
                 System.out.println("Connection established.");
                 EchoThread et = new EchoThread(s);
                 Thread t = new Thread(et);
-                CLIENT_LIST.add(et);
                 t.start();
+                
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-        }
     }
     @Override
     public Boolean call() throws Exception {
-        return true;
+        this.invoke();
+        return successFinished;
     }
-
-    public PipedOutputStream getPos() {
-        return pos;
-    }
-    public static void write(String line) throws IOException{
-        pw.write(line+"\n");
-        pw.flush();
-        
-    }
-    synchronized private static final void echo(PrintStream s){
-//        for(Socket socket : CLIENT_LIST){
-//        BufferedWriter bw = new BufferedWriter(new PrintWriter(s));
-//        }
+    public static final void echo(String command){
+        System.out.println(command);
+        String arr[] = command.intern().split(" ");
+            boolean daemon = arr[arr.length - 1].equals("&");
+            if(command.equals("quit")){
+                System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
+                System.exit(0);
+            }
+            try {
+                List<Command> commandList = CLParser.analyze(jlc.JLC.settings, arr);
+                Command.execute(commandList, daemon, JLC.LOG_FILE_PATH);
+            } catch (JCLException e) {
+                System.out.println(e.getMessage());
+            }
+            catch(InterruptedException ie){
+                throw new RuntimeException();
+            }
+            catch(ExecutionException ee){
+                throw new RuntimeException();
+            }
     }
     
     

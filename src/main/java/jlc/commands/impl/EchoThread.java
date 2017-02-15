@@ -28,31 +28,26 @@ public class EchoThread implements Runnable{
 
     @Override
     public void run() {
-        BufferedReader br = null;
-        try{
-        br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        out = new PrintWriter(client.getOutputStream(),true);
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));PrintWriter out = new PrintWriter(client.getOutputStream(),true)){
                 String text = null;
                 while((text = br.readLine()) != null && text != CLOSE){
                     if(client.isConnected()){
-                    System.out.println(text);
-                    RemoteMode.write(text);
+                        RemoteMode.echo(text);
                     }
+                    else return;
                 }
         } catch (IOException ex) {
             ex.printStackTrace();
         }finally{
             try {
                 client.close();
-                br.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            RemoteMode.CLIENT_LIST.remove(client);
             client = null;
         }
         }
-    private final void echo(String message){
+    public final void echo(String message){
         if(client != null)
         out.println(message);
     }

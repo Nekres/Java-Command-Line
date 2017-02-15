@@ -21,7 +21,6 @@ import jlc.exceptions.JCLException;
  */
 public class Dir extends AbstractCommand implements Command{
     public static String NAME = "dir";
-    private static final int ARG_AMOUNT = 0;
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
     private String arg;
     static{ DATE.setTimeZone(TimeZone.getTimeZone("UTC"));}
@@ -68,11 +67,6 @@ public class Dir extends AbstractCommand implements Command{
         for(int i = 0; i < max-length;i++){
             bw.write(" ");
         }
-    }
-
-    @Override
-    public int argsAmount() {
-        return ARG_AMOUNT;
     }
 
     @Override

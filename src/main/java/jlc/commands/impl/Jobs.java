@@ -15,6 +15,7 @@ import jlc.commands.Command;
 import static jlc.commands.impl.AbstractCommand.ENCODING;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
+import jlc.view.TextStyle;
 
 /**
  *
@@ -34,19 +35,18 @@ public class Jobs extends AbstractCommand implements Command {
     @Override
     public void invoke() throws BadCommandArgumentException, IOException {
         try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING)))){
-        bw.write("+Name\t\tID+");
-        bw.newLine();
-        for(Command c : map.values()){
-            bw.write(""+c.getName()+"\t\t"+c.getID());
-            bw.newLine();
-            bw.flush();
+            if (!map.isEmpty()) {
+                bw.write("+Name\t\tID+");
+                bw.newLine();
+                for (Command c : map.values()) {
+                    bw.write("" + c.getName() + "\t\t" + c.getID());
+                    bw.newLine();
+                    bw.flush();
+                }
+            } else {
+                System.out.println(TextStyle.colorText("No processes running in daemon mode.", TextStyle.Color.RED));
+            }
         }
-        }
-    }
-
-    @Override
-    public int argsAmount() {
-        return 0;
     }
 
     @Override

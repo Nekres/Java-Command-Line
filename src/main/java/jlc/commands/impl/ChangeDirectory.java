@@ -6,7 +6,6 @@
 package jlc.commands.impl;
 
 import java.io.File;
-import java.io.PrintStream;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
@@ -16,7 +15,6 @@ import jlc.exceptions.JCLException;
  * @author desolation
  */
 public class ChangeDirectory extends AbstractCommand implements Command {
-    private static final int ARG_AMOUNT = 1;
     private static final String SPLITTER = System.getProperty("file.separator");
     private static final String RETURN = "..";
     public static String NAME = "cd";
@@ -62,11 +60,6 @@ public class ChangeDirectory extends AbstractCommand implements Command {
             }
         }
         throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
-    }
-
-    @Override
-    public int argsAmount() {
-        return ARG_AMOUNT;
     }
 
     @Override

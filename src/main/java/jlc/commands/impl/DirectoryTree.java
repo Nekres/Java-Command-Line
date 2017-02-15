@@ -14,14 +14,12 @@ import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
 import jlc.view.TextStyle;
-import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
  *
  * @author desolation
  */
 public class DirectoryTree extends AbstractCommand implements Command {
-    public static final int ARG_AMOUNT = 0;
     private static final String NEXT = System.lineSeparator().intern();
     public static String NAME = "tree";
     private int summary = -1; // -1 excluding root of the tree
@@ -62,11 +60,6 @@ public class DirectoryTree extends AbstractCommand implements Command {
             bw.write(TextStyle.colorText(summary, TextStyle.Color.CYAN));
         }
         }
-
-    @Override
-    public int argsAmount() {
-        return ARG_AMOUNT;
-    }
 
     @Override
     public void run() {

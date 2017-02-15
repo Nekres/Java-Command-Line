@@ -41,11 +41,6 @@ public class SystemTask extends AbstractCommand implements Command{
     }
 
     @Override
-    public int argsAmount() {
-        return task.size()-1;
-    }
-
-    @Override
     public void run() {
         try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
         ProcessBuilder pb = new ProcessBuilder(task);

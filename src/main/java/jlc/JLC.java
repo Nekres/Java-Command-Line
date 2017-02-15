@@ -7,11 +7,12 @@ package jlc;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
-import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.JCLException;
-import jlc.exceptions.NoSuchCommandException;
+import jlc.parse.CLParser;
 import jlc.parse.impl.JAXBParser;
 import jlc.view.TextStyle;
 import org.apache.commons.io.input.CloseShieldInputStream;
@@ -23,33 +24,34 @@ import org.apache.commons.io.input.CloseShieldInputStream;
  */
 public class JLC {
     private static final String OS_ENCODING = System.getProperty("os.name").contains("Windows") ? "866" : "UTF-8";
-    private static final String OR = "||".intern(); 
-    private static final String AND = "&&".intern();
-    private static List<String> settings = new ArrayList<>();
+    public static List<String> settings = new ArrayList<>();
+    public static String LOG_FILE_PATH;
     
     /**
      * Java Command Line allows user to run programs by typing their names.
      * @param args the command line arguments
      * @throws java.lang.Exception
      */
-    public static void main(String[] args) throws Exception {
-        RemoteMode rm = new RemoteMode(4567);
-        //PipedInputStream ps = new PipedInputStream(rm.getPos());
-        Thread t = new Thread(rm);
-        //t.start();
+    public static void main(String[] args) {
+        Settings options = null;
+        try{
         File file = new File("settings.xml");
         if (!file.exists()) {
             Settings.setDefault(file);
             System.out.println("Running with default settings...");
         }
-        
-        Settings options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from settings.xml file
+         options = (Settings) new JAXBParser().getObject(file, Settings.class); //settings from settings.xml file
+        }catch(JAXBException e){
+            options = Settings.getDefault();
+            System.out.println("");
+        }
         settings.add(options.getDir());
         Dir.NAME = options.getDir(); //Setting up the new name of command, if user modified it
         settings.add(options.getDirectoryTree());
         DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
         settings.add(Jobs.NAME);
+        settings.add(RemoteMode.NAME);
         ChangeDirectory.NAME = options.getChangeDirectory();
         File logs = new File(options.getLogFilePath());
         if (!logs.exists()) {
@@ -58,6 +60,7 @@ public class JLC {
                 System.exit(0);
             }
         }
+        LOG_FILE_PATH = options.getLogFilePath();
         boolean daemon = false;
         System.out.println("Java command line.");
         while (true) {
@@ -69,75 +72,24 @@ public class JLC {
             String arr[] = command.intern().split(" ");
             daemon = arr[arr.length - 1].equals("&");
             if(command.equals("quit")){
-                System.out.println("Bye.\nWe'll miss you.");
+                System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
                 System.exit(0);
             }
             try {
-                List<Command> commandList = analyze(settings, arr);
-                Command.execute(commandList, daemon, options.getLogFilePath());
+                List<Command> commandList = CLParser.analyze(settings, arr);
+                Command.execute(commandList, daemon, LOG_FILE_PATH);
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
+            }
+            catch(InterruptedException ie){
+                throw new RuntimeException();
+            }
+            catch(ExecutionException ee){
+                throw new RuntimeException();
             }
             scan.close();
         }
     }
-    //
-    public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
-        List<CommandWrapper> commands = new ArrayList<>();
-        List<Command> result = new ArrayList<>();
-        String c = input[0];
-        int mark = 0;
-        boolean next = false, found = true;
-        String splitter = null;
-        for (int i = 0; i < input.length; i++) {
-            for (String ks : settings) {
-                if (input[i] == ks.intern()) {  //if (input[i].equals(ks)) { look for a bug here
-                    c = ks;
-                    mark = i; //индекс комманды
-                    found = true;
-                    next = false;
-                    break;
-                }
-            }
-            if ((input[i].intern() == OR || input[i].intern() == AND) && i != 0) {
-                next = true;
-                splitter = input[i];
-                load(commands, c, input, mark + 1, i, splitter);
-                found = false;
-                splitter = null;
-                continue;
-            }
-            if (next) {
-                c = input[i];
-                mark = i;
-                found = true;
-            }
-            if (c != null && i == input.length - 1 && found) {
-                if (!input[input.length - 1].equals("&")) {
-                    load(commands, c, input, mark + 1, input.length, splitter);
-                } else {
-                    load(commands, c, input, mark + 1, input.length - 1, splitter);
-                }
-                found = false;
-                splitter = null;
-            }
-            next = false;
-        }
-        for (CommandWrapper h : commands) {
-            Command cmd = CommandFactory.createCommand(h.command, h.arg);
-            result.add(cmd);
-        }
-        return result;
-    }
 
-    private static final void load(List<CommandWrapper> list, String c, String[] input, int from, int to, String splitter) {
-        CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
-        if (splitter != null) {
-            h.setNext(splitter);
-            System.out.println(h.getNext());
-        }
-        list.add(h);
-        c = null;
-    }
 
 }

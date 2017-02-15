@@ -56,13 +56,16 @@ public class Settings {
         this.directoryTree = directoryTree;
     }
     public static void setDefault(File file) throws JAXBException{
+        JAXBParser parser = new JAXBParser();
+        parser.saveObject(getDefault(), file);
+    }
+    public static Settings getDefault(){
         Settings s = new Settings();
         s.setChangeDirectory("cd");
         s.setDir("dir");
         s.setDirectoryTree("tree");
         s.setLogFilePath(System.getProperty("user.dir"));
-        JAXBParser parser = new JAXBParser();
-        parser.saveObject(s, file);
+        return s;
     }
     
     
