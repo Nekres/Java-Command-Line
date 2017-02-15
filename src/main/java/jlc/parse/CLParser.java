@@ -78,7 +78,6 @@ public class CLParser {
         CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
-            System.out.println(h.getNext());
         }
         list.add(h);
         c = null;

@@ -61,7 +61,7 @@ public class Dir extends AbstractCommand implements Command{
         }
 
     private final void printInfo(final int length, final BufferedWriter bw) throws IOException{
-        int max = 30;
+        int max = 40;
         if(length > max)
             bw.write(System.lineSeparator());
         for(int i = 0; i < max-length;i++){

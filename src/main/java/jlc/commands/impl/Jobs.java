@@ -39,7 +39,7 @@ public class Jobs extends AbstractCommand implements Command {
                 bw.write("+Name\t\tID+");
                 bw.newLine();
                 for (Command c : map.values()) {
-                    bw.write("" + c.getName() + "\t\t" + c.getID());
+                    bw.write(c.getName() + "\t\t" + c.getID());
                     bw.newLine();
                     bw.flush();
                 }

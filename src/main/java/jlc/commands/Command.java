@@ -7,25 +7,17 @@ package jlc.commands;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.*;
 import jlc.commands.impl.Jobs;
-import jlc.commands.impl.SystemTask;
-import jlc.exceptions.BadCommandArgumentException;
-import jlc.exceptions.JCLException;
-import jlc.exceptions.NoSuchCommandException;
+import jlc.exceptions.*;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
  *
  * @author desolation
  */
 public interface Command extends Runnable,Callable<Boolean> {
-    String DIRECTORY_SEPARATOR = System.getProperty("file.separator");
+    public static final String DIRECTORY_SEPARATOR = System.getProperty("file.separator");
     void invoke() throws BadCommandArgumentException, IOException;//return currentDir if dir not changed
     
     void setSeparator(String delim);
@@ -47,7 +39,7 @@ public interface Command extends Runnable,Callable<Boolean> {
     String getName();
     /**
      * Executs commands one by one if as daemons(output will be written to file) 
-     * or non-daemons(ouput will be written to System.in). 
+     * or non-daemons(ouput will be written to System.out). 
      * @param commands - list of the commands to execute
      * @param daemon - value to choose execution type
      * @param logFilePath - directory where logs will be written
@@ -63,7 +55,7 @@ public interface Command extends Runnable,Callable<Boolean> {
                 @Override
                 public void run() {
                     try {
-                        ExecutorService exec = Executors.newFixedThreadPool(1);
+                        ExecutorService exec = Executors.newFixedThreadPool(commands.size());
                         for (Command c : commands) {
                             File logDIR = new File(logFilePath + DIRECTORY_SEPARATOR+"logs"+DIRECTORY_SEPARATOR + c.getName().toUpperCase());
                             if (!logDIR.exists()) {
@@ -95,18 +87,34 @@ public interface Command extends Runnable,Callable<Boolean> {
             t.setDaemon(true);
             t.start();
         } else {
-                ExecutorService exec = Executors.newFixedThreadPool(1);
-                for(Command command : commands){
-                    Future<Boolean> result = exec.submit((Callable)command);
+            executeToStream(commands, System.out, true);
+        }
+    }
+    /**
+     * when you want to close
+     * @param commands - list of the command to execute
+     * @param os - stream where output will be written
+     * @param protectStream - protect stream by CloseShieldOutputStream. This is need when you not done with stream
+     * @throws InterruptedException
+     * @throws ExecutionException 
+     */
+    public static void executeToStream(final List<Command> commands, final OutputStream os, boolean protectStream) throws InterruptedException, ExecutionException{
+        ExecutorService exec = Executors.newFixedThreadPool(commands.size());
+        for(Command command : commands){
+            if (protectStream) {
+                command.setOutputPath(new CloseShieldOutputStream(os));
+            } else {
+                command.setOutputPath(os);
+            }
+            Future<Boolean> result = exec.submit((Callable)command);
                     if(!result.get().booleanValue()){
                         if(command.getSeparator() == null)
                             break;
                         if(command.getSeparator().equals("&&"))
                             break;
                     }
-                }
-                exec.shutdown();
         }
+        exec.shutdown();
     }
 
 }

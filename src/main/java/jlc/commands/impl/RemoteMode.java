@@ -74,17 +74,16 @@ public class RemoteMode extends AbstractCommand implements Command{
         this.invoke();
         return successFinished;
     }
-    public static final void echo(String command){
+    public static final void echo(final String command, final OutputStream os){
         System.out.println(command);
         String arr[] = command.intern().split(" ");
-            boolean daemon = arr[arr.length - 1].equals("&");
             if(command.equals("quit")){
                 System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
                 System.exit(0);
             }
             try {
                 List<Command> commandList = CLParser.analyze(jlc.JLC.settings, arr);
-                Command.execute(commandList, daemon, JLC.LOG_FILE_PATH);
+                Command.executeToStream(commandList,os, true);
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
             }

@@ -32,9 +32,9 @@ public class EchoThread implements Runnable{
                 String text = null;
                 while((text = br.readLine()) != null && text != CLOSE){
                     if(client.isConnected()){
-                        RemoteMode.echo(text);
+                        RemoteMode.echo(text,client.getOutputStream());
                     }
-                    else return;
+                    else break;
                 }
         } catch (IOException ex) {
             ex.printStackTrace();
