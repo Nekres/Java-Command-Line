@@ -11,13 +11,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import jlc.commands.impl.RemoteMode;
+import jlc.view.TextStyle;
 
 /**
  *
  * @author desolation
  */
 public class EchoThread implements Runnable{
-    private static final String CLOSE = "close".intern();
+    private static final String CLOSE = "close";
     private Socket client;
     private PrintWriter out;
     
@@ -30,7 +31,7 @@ public class EchoThread implements Runnable{
     public void run() {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));PrintWriter out = new PrintWriter(client.getOutputStream(),true)){
                 String text = null;
-                while((text = br.readLine()) != null && text != CLOSE){
+                while((text = br.readLine()) != null && !text.equals(CLOSE)){
                     if(client.isConnected()){
                         RemoteMode.echo(text,client.getOutputStream());
                     }
@@ -40,6 +41,7 @@ public class EchoThread implements Runnable{
             ex.printStackTrace();
         }finally{
             try {
+                System.out.println(TextStyle.colorText("User has been disconnected.\n Program continue to work in normal stance.", TextStyle.Color.CYAN));
                 client.close();
             } catch (IOException ex) {
                 ex.printStackTrace();

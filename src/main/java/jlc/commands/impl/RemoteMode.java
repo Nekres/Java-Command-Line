@@ -9,11 +9,14 @@ import java.io.*;
 import java.net.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jlc.JLC;
 import jlc.commands.Command;
 import jlc.exceptions.JCLException;
 import jlc.parse.CLParser;
 import jlc.view.TextStyle;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
  *
@@ -53,20 +56,31 @@ public class RemoteMode extends AbstractCommand implements Command{
             server = new ServerSocket(port);
             System.out.println("\nRemote mode is listening for incoming connections on "+ port +" port...");
         } catch (IOException ex) {
-            System.out.println("could not listen on port: "+ port);
-            System.out.println("Try to use another port.");
+            System.out.println(TextStyle.colorText("could not listen on port: "+ port, TextStyle.Color.RED));
+            System.out.println(TextStyle.colorText("Try to use another port.", TextStyle.Color.RED));
             successFinished = false;
             return;
         }
+        Socket s = null;
             try{
-                Socket s = server.accept();
-                System.out.println("Connection established.");
+                s = server.accept();
+                System.out.println(TextStyle.colorText("Connection established.", TextStyle.Color.BLUE));
                 EchoThread et = new EchoThread(s);
                 Thread t = new Thread(et);
                 t.start();
-                
+                t.join();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+        }finally{
+            try {
+                server.close();
+                if(s != null)
+                s.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             }
     }
     @Override
@@ -84,6 +98,11 @@ public class RemoteMode extends AbstractCommand implements Command{
             try {
                 List<Command> commandList = CLParser.analyze(jlc.JLC.settings, arr);
                 Command.executeToStream(commandList,os, true);
+                try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new CloseShieldOutputStream(os)))){
+                   bw.write(System.getProperty("user.dir").intern());
+                }catch(IOException e){
+                    throw new RuntimeException(e);
+                }
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
             }
