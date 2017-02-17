@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jlc.commands.impl;
+package jlc.commands.impl.rm;
 
+import jlc.commands.impl.rm.RemoteMode;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
-import jlc.commands.impl.RemoteMode;
+import java.net.SocketException;
 import jlc.view.TextStyle;
 
 /**
@@ -20,7 +20,6 @@ import jlc.view.TextStyle;
 public class EchoThread implements Runnable{
     private static final String CLOSE = "close";
     private Socket client;
-    private PrintWriter out;
     
     
     public EchoThread(final Socket clientSocket){
@@ -29,28 +28,32 @@ public class EchoThread implements Runnable{
 
     @Override
     public void run() {
-        try(BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));PrintWriter out = new PrintWriter(client.getOutputStream(),true)){
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()))){
                 String text = null;
                 while((text = br.readLine()) != null && !text.equals(CLOSE)){
                     if(client.isConnected()){
-                        RemoteMode.echo(text,client.getOutputStream());
+                        RemoteMode.remoteExecute(text,client.getOutputStream());
                     }
                     else break;
                 }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        }catch (SocketException e){} //When client tries to kill himself remotely use "slay remote mode"
+        catch (IOException ex) {
         }finally{
+            System.out.println(TextStyle.colorText(client.getInetAddress()+ " User has been disconnected.", TextStyle.Color.CYAN));
             try {
-                System.out.println(TextStyle.colorText("User has been disconnected.\n Program continue to work in normal stance.", TextStyle.Color.CYAN));
+                RemoteMode.CLIENT_LIST.remove(this);
+                if(!client.isClosed())
                 client.close();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
             client = null;
         }
         }
-    public final void echo(String message){
-        if(client != null)
-        out.println(message);
+
+    @Override
+    public String toString() {
+        return client.getInetAddress().toString();
     }
+    
     }

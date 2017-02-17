@@ -1,0 +1,38 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package jlc.commands.impl;
+
+import java.util.Map;
+import jlc.commands.Command;
+import jlc.commands.impl.ActiveCommandsManager.Task;
+import jlc.exceptions.BadCommandArgumentException;
+
+/**
+ *
+ * @author desolation
+ */
+public class Kill extends AbstractCommand implements Command{
+    public static final String NAME = "slay";
+    private final int id;
+    public Kill(final int id){
+        this.id = id;
+    }
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public Boolean call() throws BadCommandArgumentException {
+        Map<Integer, Task<Boolean>> map = ActiveCommandsManager.ACTIVE_TASK_LIST;
+        if(map.containsKey(id))
+            ActiveCommandsManager.interruptById(id);
+        else
+            throw new BadCommandArgumentException("Process with " + id + "not found.");
+        return true;
+    }
+    
+}

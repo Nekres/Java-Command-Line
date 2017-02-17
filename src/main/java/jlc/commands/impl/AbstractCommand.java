@@ -39,6 +39,16 @@ public abstract class AbstractCommand implements Command{
     public void setSeparator(String delim){
         this.delim = delim;
     }
+    @Override
+    public int getID() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + this.id;
+    }
+    
 
     
     

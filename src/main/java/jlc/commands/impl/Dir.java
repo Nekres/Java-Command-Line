@@ -31,9 +31,19 @@ public class Dir extends AbstractCommand implements Command{
     public Dir(){
     }
     
+    private final void printInfo(final int length, final BufferedWriter bw) throws IOException{
+        int max = 40;
+        if(length > max)
+            bw.write(System.lineSeparator());
+        for(int i = 0; i < max-length;i++){
+            bw.write(" ");
+        }
+    }
+
     @Override
-    public void invoke() throws BadCommandArgumentException, IOException {
-        try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
+    public Boolean call() throws Exception {
+        try{
+            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
             File file = new File(System.getProperty("user.dir"));
         if (file.isDirectory()){
             if (arg != null){
@@ -58,50 +68,16 @@ public class Dir extends AbstractCommand implements Command{
             }
         }
         }
+        }catch(JCLException e){
+            ActiveCommandsManager.remove(this.getID());
+            return false;
         }
-
-    private final void printInfo(final int length, final BufferedWriter bw) throws IOException{
-        int max = 40;
-        if(length > max)
-            bw.write(System.lineSeparator());
-        for(int i = 0; i < max-length;i++){
-            bw.write(" ");
-        }
+        ActiveCommandsManager.remove(this.getID());
+        return true;
     }
-
-    @Override
-    public void run() {
-        try {
-            invoke();
-        } catch (BadCommandArgumentException ex) {
-            System.out.println(ex.getMessage());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-    @Override
-    public String toString() {
-        return "_DIR#ID{" + this.id;
-    }
-
     @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public int getID() {
-        return this.id;
-    }
-
-    @Override
-    public Boolean call() throws Exception {
-        try{
-            invoke();
-        }catch(JCLException e){
-            return false;
-        }
-        return true;
     }
     
     private final class Filter implements FilenameFilter{

@@ -5,12 +5,14 @@
  */
 package jlc;
 
+import jlc.commands.impl.rm.RemoteMode;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
+import jlc.commands.impl.rm.Who;
 import jlc.exceptions.JCLException;
 import jlc.parse.CLParser;
 import jlc.parse.impl.JAXBParser;
@@ -50,8 +52,10 @@ public class JLC {
         settings.add(options.getDirectoryTree());
         DirectoryTree.NAME = options.getDirectoryTree();
         settings.add(options.getChangeDirectory());
-        settings.add(Jobs.NAME);
+        settings.add(ActiveCommandsManager.NAME);
         settings.add(RemoteMode.NAME);
+        settings.add(Who.NAME);
+        settings.add(Kill.NAME);
         ChangeDirectory.NAME = options.getChangeDirectory();
         File logs = new File(options.getLogFilePath());
         if (!logs.exists()) {
@@ -80,12 +84,6 @@ public class JLC {
                 Command.execute(commandList, daemon, LOG_FILE_PATH);
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
-            }
-            catch(InterruptedException ie){
-                throw new RuntimeException();
-            }
-            catch(ExecutionException ee){
-                throw new RuntimeException();
             }
             scan.close();
         }

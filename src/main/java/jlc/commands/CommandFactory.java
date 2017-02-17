@@ -5,9 +5,11 @@
  */
 package jlc.commands;
 
+import jlc.commands.impl.rm.RemoteMode;
 import java.util.Arrays;
 import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.*;
+import jlc.commands.impl.rm.Who;
 import jlc.exceptions.BadCommandArgumentException;
 
 /**
@@ -38,9 +40,9 @@ public class CommandFactory implements ThreadFactory {
                 throw new BadCommandArgumentException();
             }
         }
-        if (command.equals(Jobs.NAME)) {
+        if (command.equals(ActiveCommandsManager.NAME)) {
             if (arg.length == 0) {
-                return new Jobs();
+                return new ActiveCommandsManager();
             } else {
                 throw new BadCommandArgumentException();
             }
@@ -52,6 +54,22 @@ public class CommandFactory implements ThreadFactory {
             else if (arg.length == 1){
                 return new RemoteMode(Integer.parseInt(arg[0]));
             }
+            throw new BadCommandArgumentException();
+        }
+        if (command.equals(Kill.NAME)){
+            if (arg.length == 1){
+                try{
+                int a = Integer.parseInt(arg[0]);
+                return new Kill(a);
+                }catch(NumberFormatException efx){
+                    throw new BadCommandArgumentException("ID of the command must be a number. Look for id of process you need by \"jobs\"");
+                }
+            }
+            throw new BadCommandArgumentException("Slay command has only one argument.");
+        }
+        if (command.equals(Who.NAME)){
+            if(arg.length == 0)
+                return new Who();
             throw new BadCommandArgumentException();
         }
         if (arg.length > 0) {

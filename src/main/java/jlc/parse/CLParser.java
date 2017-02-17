@@ -82,4 +82,7 @@ public class CLParser {
         list.add(h);
         c = null;
     }
+    private static final void parseUserInput(String input){
+        
+    }
 }

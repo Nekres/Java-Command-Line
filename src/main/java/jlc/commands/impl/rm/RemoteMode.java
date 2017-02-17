@@ -3,16 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jlc.commands.impl;
+package jlc.commands.impl.rm;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jlc.JLC;
 import jlc.commands.Command;
+import jlc.commands.impl.AbstractCommand;
+import jlc.commands.impl.ActiveCommandsManager;
 import jlc.exceptions.JCLException;
 import jlc.parse.CLParser;
 import jlc.view.TextStyle;
@@ -23,72 +27,70 @@ import org.apache.commons.io.output.CloseShieldOutputStream;
  * @author desolation
  */
 public class RemoteMode extends AbstractCommand implements Command{
+    public static final List<EchoThread> CLIENT_LIST = new ArrayList<>();
     public static final String NAME = "remote".intern();
     public static final int DEFAULT_PORT = 5000;
     public static boolean ENABLED = true;
     private ServerSocket server;
     private final int port;
-    private boolean successFinished = true;
 
     public RemoteMode(int port){
         this.port = port;
     }
     
-
-    @Override
-    public void invoke() {
-        this.run();
-    }
-
-    @Override
-    public int getID() {
-        return ++INSTANCE_ID;
-    }
-
     @Override
     public String getName() {
         return NAME;
     }
 
     @Override
-    public void run() {
+    public Boolean call() {
         try {
-            server = new ServerSocket(port);
+            server = new ServerSocket(port,20);
             System.out.println("\nRemote mode is listening for incoming connections on "+ port +" port...");
+            System.out.println("Run remote in daemon using\"remote &\" to have a possibility to write from keyboard or discard remote mode\n"
+                    + "You can use \"who\" to get list of all clients and \"write\" to send message for everyone connected");
         } catch (IOException ex) {
             System.out.println(TextStyle.colorText("could not listen on port: "+ port, TextStyle.Color.RED));
             System.out.println(TextStyle.colorText("Try to use another port.", TextStyle.Color.RED));
-            successFinished = false;
-            return;
-        }
+            ActiveCommandsManager.remove(this.getID());
+            return false;
+        } 
         Socket s = null;
             try{
+                while(!server.isClosed()){
                 s = server.accept();
-                System.out.println(TextStyle.colorText("Connection established.", TextStyle.Color.BLUE));
+                System.out.println(TextStyle.colorText("Connection established with" + s.getInetAddress(), TextStyle.Color.BLUE));
                 EchoThread et = new EchoThread(s);
+                CLIENT_LIST.add(et);
                 Thread t = new Thread(et);
                 t.start();
-                t.join();
+                }
             } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-        }finally{
+                System.out.println("Remote Mode stopped.");
+            } 
+            finally{
             try {
+                ActiveCommandsManager.remove(this.getID());
+                if (!server.isClosed())
                 server.close();
-                if(s != null)
+                if(s != null && !s.isClosed())
                 s.close();
+                CLIENT_LIST.clear();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
             }
+            return true;
     }
-    @Override
-    public Boolean call() throws Exception {
-        this.invoke();
-        return successFinished;
+    synchronized public final void destroy(){
+        try {
+            server.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
-    public static final void echo(final String command, final OutputStream os){
+    synchronized public static final void remoteExecute(final String command, final OutputStream os){
         System.out.println(command);
         String arr[] = command.intern().split(" ");
             if(command.equals("quit")){
@@ -99,18 +101,12 @@ public class RemoteMode extends AbstractCommand implements Command{
                 List<Command> commandList = CLParser.analyze(jlc.JLC.settings, arr);
                 Command.executeToStream(commandList,os, true);
                 try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new CloseShieldOutputStream(os)))){
-                   bw.write(System.getProperty("user.dir").intern());
+                   bw.write(System.getProperty("user.dir").intern()+":");
                 }catch(IOException e){
                     throw new RuntimeException(e);
                 }
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
-            }
-            catch(InterruptedException ie){
-                throw new RuntimeException();
-            }
-            catch(ExecutionException ee){
-                throw new RuntimeException();
             }
     }
     

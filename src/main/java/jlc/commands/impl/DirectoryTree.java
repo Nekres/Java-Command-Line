@@ -24,8 +24,17 @@ public class DirectoryTree extends AbstractCommand implements Command {
     public static String NAME = "tree";
     private int summary = -1; // -1 excluding root of the tree
     private int dirSummary = -1;
+    private String regex;
+    private File root;
 
     public DirectoryTree() {
+    }
+    public DirectoryTree(final String regex){
+        this.regex = regex;
+    }
+    public DirectoryTree(final File root, final String regex){
+        this.regex = regex;
+        this.root = root;
     }
 
     private final void check(List<File> list, BufferedWriter bw) throws BadCommandArgumentException, IOException {
@@ -51,47 +60,21 @@ public class DirectoryTree extends AbstractCommand implements Command {
     }
 
     @Override
-    public void invoke() throws BadCommandArgumentException, IOException {
-        try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput, Charset.forName(ENCODING))))){
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try {
+            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput, Charset.forName(ENCODING))))){
             List<File> list = Arrays.asList(new File(System.getProperty("user.dir") + System.getProperty("file.separator")));
             check(list, bw);
             String summary = "Summary:" + this.summary + ", directories:"
                     + dirSummary + ", files:" + (this.summary - dirSummary) + NEXT;
             bw.write(TextStyle.colorText(summary, TextStyle.Color.CYAN));
         }
-        }
-
-    @Override
-    public void run() {
-        try {
-            invoke();
-        } catch (BadCommandArgumentException ex) {
-            System.out.println(ex.getMessage());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-    }
-
-    @Override
-    public String toString() {
-        return "_tree#id" + this.id;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public int getID() {
-        return this.id;
-    }
-
-    @Override
-    public Boolean call() throws Exception {
-        try {
-            invoke();
+            ActiveCommandsManager.remove(this.getID());
         } catch (JCLException e) {
             return false;
         }

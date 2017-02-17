@@ -31,7 +31,13 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     }
 
     @Override
-    public void invoke() throws BadCommandArgumentException {
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        try{
         String currentDir = System.getProperty("user.dir");
         String dat[], result = "";
         if (SPLITTER.equals("\\"))
@@ -44,7 +50,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
                 result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER) + 1).intern();
             }
             System.setProperty("user.dir", result);
-            return;
+            return true;
         }
         File nextDir = new File(currentDir);
         if (nextDir.listFiles().length != 0) {
@@ -55,45 +61,14 @@ public class ChangeDirectory extends AbstractCommand implements Command {
                     } else {
                         System.setProperty("user.dir", currentDir + file.getName());
                     }
-                    return;
+                    return true;
                 }
             }
         }
         throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
-    }
-
-    @Override
-    public void run() {
-        try {
-            invoke();
-        } catch (BadCommandArgumentException ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "_CD#ID" + this.id;
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public int getID() {
-        return this.id;
-    }
-
-    @Override
-    public Boolean call() throws Exception {
-        try{
-        invoke();
         }catch(JCLException e){
             return false;
         }
-        return true;
     }
     
 }

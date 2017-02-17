@@ -8,24 +8,23 @@ package jlc.commands;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import jlc.commands.impl.Jobs;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jlc.commands.impl.ActiveCommandsManager;
 import jlc.exceptions.*;
+import jlc.view.TextStyle;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
  *
  * @author desolation
  */
-public interface Command extends Runnable,Callable<Boolean> {
+public interface Command extends Callable<Boolean> {
     public static final String DIRECTORY_SEPARATOR = System.getProperty("file.separator");
-    void invoke() throws BadCommandArgumentException, IOException;//return currentDir if dir not changed
     
     void setSeparator(String delim);
     
     String getSeparator();
-    /**
-     * @return - returns minimal count of args
-     */
     /**
      * @param path - stream where you redirecting sysout of command
      */
@@ -46,7 +45,7 @@ public interface Command extends Runnable,Callable<Boolean> {
      * @throws BadCommandArgumentException
      * @throws NoSuchCommandException
      */
-    static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, NoSuchCommandException, InterruptedException, ExecutionException {
+    static void execute(List<Command> commands, boolean daemon, String logFilePath) throws BadCommandArgumentException, NoSuchCommandException, JCLException {
         if (commands.isEmpty()) {
             throw new BadCommandArgumentException("Enter the command.");
         }
@@ -55,7 +54,7 @@ public interface Command extends Runnable,Callable<Boolean> {
                 @Override
                 public void run() {
                     try {
-                        ExecutorService exec = Executors.newFixedThreadPool(commands.size());
+                        ExecutorService exec = Executors.newSingleThreadExecutor();
                         for (Command c : commands) {
                             File logDIR = new File(logFilePath + DIRECTORY_SEPARATOR+"logs"+DIRECTORY_SEPARATOR + c.getName().toUpperCase());
                             if (!logDIR.exists()) {
@@ -65,8 +64,8 @@ public interface Command extends Runnable,Callable<Boolean> {
                             logFile.createNewFile();
                             try(FileOutputStream fos = new FileOutputStream(logFile)){
                             c.setOutputPath(fos);
-                            Jobs.add(c,c.toString());
                             Future<Boolean> result = exec.submit((Callable)c);
+                            ActiveCommandsManager.add(c,c.getID(),result);
                             if(!result.get().booleanValue()){
                             if(c.getSeparator() == null)
                             break;
@@ -74,15 +73,20 @@ public interface Command extends Runnable,Callable<Boolean> {
                             break;
                             }
                     }
-                            Jobs.remove(c.toString());
+                            
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                         System.out.println("Error: no such command.\n");
                     } catch (InterruptedException ex) {
-                    } catch (ExecutionException ex) {
+                        ex.printStackTrace();
+                    } catch(ExecutionException ex){
+                        System.out.println("Something goes wrong. Process stoped.");
+                    } catch(CancellationException c){
+                        System.out.println("Process was killed by \"slay\" command.");
                     }
                 }
+                public void kill(){}
             });
             t.setDaemon(true);
             t.start();
@@ -91,15 +95,15 @@ public interface Command extends Runnable,Callable<Boolean> {
         }
     }
     /**
-     * when you want to close
+     * Executing command to selected OutputStream.
      * @param commands - list of the command to execute
      * @param os - stream where output will be written
      * @param protectStream - protect stream by CloseShieldOutputStream. This is need when you not done with stream
      * @throws InterruptedException
      * @throws ExecutionException 
      */
-    public static void executeToStream(final List<Command> commands, final OutputStream os, boolean protectStream) throws InterruptedException, ExecutionException{
-        ExecutorService exec = Executors.newFixedThreadPool(commands.size());
+    public static void executeToStream(final List<Command> commands, final OutputStream os, boolean protectStream) throws JCLException{
+        ExecutorService exec = Executors.newSingleThreadExecutor();
         for(Command command : commands){
             if (protectStream) {
                 command.setOutputPath(new CloseShieldOutputStream(os));
@@ -107,14 +111,24 @@ public interface Command extends Runnable,Callable<Boolean> {
                 command.setOutputPath(os);
             }
             Future<Boolean> result = exec.submit((Callable)command);
-                    if(!result.get().booleanValue()){
-                        if(command.getSeparator() == null)
-                            break;
-                        if(command.getSeparator().equals("&&"))
-                            break;
+            ActiveCommandsManager.add(command,command.getID(),result);
+            try {
+                if(!result.get().booleanValue()){
+                    if(command.getSeparator() == null)
+                        break;
+                    if(command.getSeparator().equals("&&"))
+                        break;
+                }
+            } catch (InterruptedException ex) {
+                System.out.println("here");
+            } catch (ExecutionException ex) {
+                System.out.println(ex.getMessage());
+            }
+            catch(CancellationException c){
+                        throw new JCLException("Process was killed by \"slay\" command.");
                     }
+                    ActiveCommandsManager.remove(command.getID());
         }
         exec.shutdown();
     }
-
 }
