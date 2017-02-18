@@ -21,7 +21,15 @@ public class JCLException extends Exception{
     
     @Override
     public String getMessage() {
-        return this.getMessage(); //To change body of generated methods, choose Tools | Templates.
+        return super.getMessage(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public JCLException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public JCLException(Throwable cause) {
+        super(cause);
     }
     
 }

@@ -36,8 +36,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     }
 
     @Override
-    public Boolean call() throws Exception {
-        try{
+    public Boolean call() throws BadCommandArgumentException {
         String currentDir = System.getProperty("user.dir");
         String dat[], result = "";
         if (SPLITTER.equals("\\"))
@@ -66,9 +65,6 @@ public class ChangeDirectory extends AbstractCommand implements Command {
             }
         }
         throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
-        }catch(JCLException e){
-            return false;
-        }
     }
     
 }

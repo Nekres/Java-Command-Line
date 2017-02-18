@@ -9,6 +9,7 @@ import java.util.Map;
 import jlc.commands.Command;
 import jlc.commands.impl.ActiveCommandsManager.Task;
 import jlc.exceptions.BadCommandArgumentException;
+import jlc.exceptions.ProcessKilledException;
 
 /**
  *
@@ -31,7 +32,7 @@ public class Kill extends AbstractCommand implements Command{
         if(map.containsKey(id))
             ActiveCommandsManager.interruptById(id);
         else
-            throw new BadCommandArgumentException("Process with " + id + "not found.");
+            throw new BadCommandArgumentException("Process with id " + id + " not found.");
         return true;
     }
     

@@ -19,9 +19,18 @@ public class BadCommandArgumentException extends JCLException{
         this.message = "Error: incorrect number of arguments.";
     }
 
+    public BadCommandArgumentException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BadCommandArgumentException(Throwable cause) {
+        super(cause);
+    }
+
     @Override
     public String getMessage() {
         return message; //To change body of generated methods, choose Tools | Templates.
     }
+    
     
 }

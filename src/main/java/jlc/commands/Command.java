@@ -122,12 +122,12 @@ public interface Command extends Callable<Boolean> {
             } catch (InterruptedException ex) {
                 System.out.println("here");
             } catch (ExecutionException ex) {
-                System.out.println(ex.getMessage());
+                System.out.println(ex.getCause().getMessage());
             }
             catch(CancellationException c){
                         throw new JCLException("Process was killed by \"slay\" command.");
                     }
-                    ActiveCommandsManager.remove(command.getID());
+            ActiveCommandsManager.remove(command.getID());
         }
         exec.shutdown();
     }

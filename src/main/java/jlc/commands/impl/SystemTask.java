@@ -63,9 +63,7 @@ public class SystemTask extends AbstractCommand implements Command{
                 bw.write("Error: no such command.\n");
                 bw.flush();
             }
-        } catch (IOException ex1) {
-            throw new RuntimeException(ex1);
-        }finally{
+        } finally{
             ActiveCommandsManager.remove(SystemTask.this.getID());
         }
         } catch (IOException ex) {
