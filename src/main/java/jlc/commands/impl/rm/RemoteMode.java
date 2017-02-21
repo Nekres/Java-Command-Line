@@ -13,6 +13,7 @@ import jlc.commands.Command;
 import jlc.commands.impl.AbstractCommand;
 import jlc.commands.impl.ActiveCommandsManager;
 import jlc.exceptions.JCLException;
+import jlc.exceptions.ProcessKilledException;
 import jlc.parse.CLParser;
 import jlc.view.TextStyle;
 import org.apache.commons.io.output.CloseShieldOutputStream;
@@ -39,7 +40,7 @@ public class RemoteMode extends AbstractCommand implements Command{
     }
 
     @Override
-    public Boolean call() {
+    public Boolean call() throws ProcessKilledException {
         try {
             server = new ServerSocket(port,20);
             System.out.println("\nRemote mode is listening for incoming connections on "+ port +" port...");
@@ -62,7 +63,7 @@ public class RemoteMode extends AbstractCommand implements Command{
                 t.start();
                 }
             } catch (IOException ex) {
-                System.out.println("Remote Mode stopped.");
+                throw new ProcessKilledException("Remote mode killed.");
             } 
             finally{
             try {
@@ -85,25 +86,19 @@ public class RemoteMode extends AbstractCommand implements Command{
             ex.printStackTrace();
         }
     }
-    synchronized public static final void remoteExecute(final String command, final OutputStream os){
+    synchronized public static final void remoteExecute(final String command, final OutputStream os) throws JCLException{
         System.out.println(command);
-        String arr[] = command.intern().split(" ");
             if(command.equals("quit")){
                 System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
                 System.exit(0);
             }
-            try {
-                List<Command> commandList = CLParser.analyze(jlc.JLC.settings, arr);
+                List<Command> commandList = CLParser.analyze(jlc.JLC.settings, command);
                 Command.executeToStream(commandList,os, true);
                 try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new CloseShieldOutputStream(os)))){
                    bw.write(System.getProperty("user.dir").intern()+":");
-                }catch(IOException e){
-                    throw new RuntimeException(e);
                 }
-            } catch (JCLException e) {
-                System.out.println(e.getMessage());
-            }
+                    catch(IOException e){
+                    throw new ProcessKilledException("Connection was refused.");
+                }
     }
-    
-    
-}
+    }

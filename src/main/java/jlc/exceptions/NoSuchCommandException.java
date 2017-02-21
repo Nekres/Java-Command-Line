@@ -6,7 +6,7 @@
 package jlc.exceptions;
 
 /**
- *
+ *  Throws when the command which user entered was not found.
  * @author desolation
  */
 public class NoSuchCommandException extends JCLException{

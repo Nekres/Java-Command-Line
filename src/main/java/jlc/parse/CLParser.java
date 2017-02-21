@@ -26,7 +26,8 @@ public class CLParser {
     private static final String OR = "||".intern(); 
     private static final String AND = "&&".intern();
     
-    public static List<Command> analyze(List<String> settings, String[] input) throws NoSuchCommandException, BadCommandArgumentException {
+    public static List<Command> analyze(final List<String> settings, final String in) throws NoSuchCommandException, BadCommandArgumentException {
+        String[] input = parseUserInput(in);
         List<CommandWrapper> commands = new ArrayList<>();
         List<Command> result = new ArrayList<>();
         String c = input[0];
@@ -82,7 +83,34 @@ public class CLParser {
         list.add(h);
         c = null;
     }
-    private static final void parseUserInput(String input){
-        
+    private static final String[] parseUserInput(String input){
+        List<String> list = new ArrayList<>();
+        String word ="";
+        boolean quotesIn = false;
+        for(int i = 0;i < input.length();i++){
+            if(quotesIn){
+                word+=input.charAt(i);
+                if(input.charAt(i) == '"'){
+                    quotesIn = false;
+                    list.add(word);
+                    word = "";
+                }
+            }else{
+                if(input.charAt(i) == '"'){
+                    quotesIn = true;
+                    word+=input.charAt(i);
+                    continue;
+                }
+                if(input.charAt(i) == ' '){
+                  list.add(word);
+                  word = "";
+                  continue;
+                }
+                word+=input.charAt(i);
+            }
+        }
+        list.add(word);
+        System.out.println(list);
+        return list.toArray(new String[list.size()]);
     }
 }

@@ -81,7 +81,7 @@ public interface Command extends Callable<Boolean> {
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
                     } catch(ExecutionException ex){
-                        System.out.println("Something goes wrong. Process stoped.");
+                        System.out.println(ex.getCause().getMessage());
                     } catch(CancellationException c){
                         System.out.println("Process was killed by \"slay\" command.");
                     }
@@ -120,7 +120,7 @@ public interface Command extends Callable<Boolean> {
                         break;
                 }
             } catch (InterruptedException ex) {
-                System.out.println("here");
+                ex.printStackTrace();
             } catch (ExecutionException ex) {
                 System.out.println(ex.getCause().getMessage());
             }

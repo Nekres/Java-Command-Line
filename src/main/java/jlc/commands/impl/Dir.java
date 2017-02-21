@@ -49,7 +49,7 @@ public class Dir extends AbstractCommand implements Command{
             if (arg != null){
             try{
                 for(File f : file.listFiles(new Filter(arg))) //sort by regex
-                bw.write(f.getName());
+                bw.write(f.getName()+"\n");
             }
             catch (PatternSyntaxException e){
                 throw new BadCommandArgumentException("Bad argument \"" + arg + "\"");

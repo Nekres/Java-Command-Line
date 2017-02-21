@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jlc.exceptions.JCLException;
 import jlc.view.TextStyle;
 
 /**
@@ -36,7 +39,9 @@ public class EchoThread implements Runnable{
                     else break;
                 }
         }catch (SocketException e){} //When client tries to kill himself remotely use "slay remote mode"
-        catch (IOException ex) {
+            catch (IOException ex) {
+        } catch (JCLException ex) {
+            System.out.println(ex.getMessage());
         }finally{
             System.out.println(TextStyle.colorText(client.getInetAddress()+ " User has been disconnected.", TextStyle.Color.CYAN));
             try {

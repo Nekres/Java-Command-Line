@@ -6,7 +6,6 @@
 package jlc.commands.impl.rm;
 
 import java.io.BufferedWriter;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import jlc.commands.Command;

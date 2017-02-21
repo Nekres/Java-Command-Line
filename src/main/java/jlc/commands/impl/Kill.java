@@ -27,12 +27,12 @@ public class Kill extends AbstractCommand implements Command{
     }
 
     @Override
-    public Boolean call() throws BadCommandArgumentException {
+    public Boolean call() throws ProcessKilledException {
         Map<Integer, Task<Boolean>> map = ActiveCommandsManager.ACTIVE_TASK_LIST;
         if(map.containsKey(id))
             ActiveCommandsManager.interruptById(id);
         else
-            throw new BadCommandArgumentException("Process with id " + id + " not found.");
+            throw new ProcessKilledException("Process with id " + id + " not found.");
         return true;
     }
     

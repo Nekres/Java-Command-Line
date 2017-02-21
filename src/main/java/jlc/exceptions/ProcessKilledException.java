@@ -5,13 +5,12 @@
  */
 package jlc.exceptions;
 
-import java.util.concurrent.ExecutionException;
 
 /**
- *
+ *  Throws when task was cancelled purposely
  * @author desolation
  */
-public class ProcessKilledException extends ExecutionException{
+public class ProcessKilledException extends JCLException{
 
     public ProcessKilledException() {
     }
@@ -19,16 +18,6 @@ public class ProcessKilledException extends ExecutionException{
     public ProcessKilledException(String message) {
         super(message);
     }
-
-    public ProcessKilledException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    @Override
-    public String getMessage() {
-        return super.getMessage(); //To change body of generated methods, choose Tools | Templates.
-    }
-    
     
     
 }

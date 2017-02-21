@@ -73,14 +73,13 @@ public class JLC {
             Scanner scan = new Scanner(close,OS_ENCODING);
             System.out.print(TextStyle.colorText(currentDirectory + ":",TextStyle.Color.GREEN));
             String command = scan.nextLine().intern().trim();
-            String arr[] = command.intern().split(" ");
-            daemon = arr[arr.length - 1].equals("&");
+            daemon = command.endsWith("&");
             if(command.equals("quit")){
                 System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
                 System.exit(0);
             }
             try {
-                List<Command> commandList = CLParser.analyze(settings, arr);
+                List<Command> commandList = CLParser.analyze(settings, command);
                 Command.execute(commandList, daemon, LOG_FILE_PATH);
             } catch (JCLException e) {
                 System.out.println(e.getMessage());
