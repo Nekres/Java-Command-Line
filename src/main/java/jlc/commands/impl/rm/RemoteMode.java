@@ -70,8 +70,9 @@ public class RemoteMode extends AbstractCommand implements Command{
                 ActiveCommandsManager.remove(this.getID());
                 if (!server.isClosed())
                 server.close();
-                if(s != null && !s.isClosed())
-                s.close();
+                for(EchoThread socket : CLIENT_LIST)
+                if(socket != null && !socket.isClosed())
+                socket.close();
                 CLIENT_LIST.clear();
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -86,7 +87,7 @@ public class RemoteMode extends AbstractCommand implements Command{
             ex.printStackTrace();
         }
     }
-    synchronized public static final void remoteExecute(final String command, final OutputStream os) throws JCLException{
+    public static final void remoteExecute(final String command, final OutputStream os) throws JCLException{
         System.out.println(command);
             if(command.equals("quit")){
                 System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));

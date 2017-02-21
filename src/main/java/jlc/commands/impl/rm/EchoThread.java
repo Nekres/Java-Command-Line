@@ -38,7 +38,7 @@ public class EchoThread implements Runnable{
                     }
                     else break;
                 }
-        }catch (SocketException e){} //When client tries to kill himself remotely use "slay remote mode"
+        }catch (SocketException e){} //When client tries to kill himself remotely (use"slay remote mode")
             catch (IOException ex) {
         } catch (JCLException ex) {
             System.out.println(ex.getMessage());
@@ -58,6 +58,12 @@ public class EchoThread implements Runnable{
     @Override
     public String toString() {
         return client.getInetAddress().toString();
+    }
+    public void close() throws IOException{
+        this.client.close();
+    }
+    public boolean isClosed(){
+        return this.client.isClosed();
     }
     
     }

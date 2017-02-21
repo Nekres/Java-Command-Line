@@ -83,7 +83,12 @@ public class CLParser {
         list.add(h);
         c = null;
     }
-    private static final String[] parseUserInput(String input){
+    /**
+     * Splites user input to array.
+     * @param input - user input to split
+     * @return splited input separated by quotes and spaces
+     */
+    private static final String[] parseUserInput(final String input){
         List<String> list = new ArrayList<>();
         String word ="";
         boolean quotesIn = false;
@@ -110,7 +115,6 @@ public class CLParser {
             }
         }
         list.add(word);
-        System.out.println(list);
         return list.toArray(new String[list.size()]);
     }
 }
