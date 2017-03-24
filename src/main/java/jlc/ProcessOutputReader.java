@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import jlc.exceptions.ProcessKilledException;
 
 /**
  *
@@ -26,7 +27,7 @@ public class ProcessOutputReader{
         this.out = out;
     }
 
-    public void run() {
+    public void run() throws ProcessKilledException {
         try {
             InputStreamReader isr = new InputStreamReader(in);
             BufferedWriter bw = new BufferedWriter(new PrintWriter(out)); //ресурсы закрой
@@ -37,7 +38,7 @@ public class ProcessOutputReader{
                 bw.flush();
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ProcessKilledException(e.getMessage());
         }
     }
     

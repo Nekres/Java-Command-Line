@@ -23,6 +23,8 @@ public class CLParser {
     private static final String AND = "&&".intern();
     
     public static List<Command> analyze(final List<String> settings, final String in) throws NoSuchCommandException, BadCommandArgumentException {
+        if(in.isEmpty())
+            throw new NoSuchCommandException();
         String[] input = parseUserInput(in);
         List<CommandWrapper> commands = new ArrayList<>();
         List<Command> result = new ArrayList<>();

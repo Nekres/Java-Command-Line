@@ -8,11 +8,8 @@ package jlc.commands;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import jlc.commands.impl.ActiveCommandsManager;
 import jlc.exceptions.*;
-import jlc.view.TextStyle;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
@@ -73,7 +70,6 @@ public interface Command extends Callable<Boolean> {
                             break;
                             }
                     }
-                            
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -86,7 +82,6 @@ public interface Command extends Callable<Boolean> {
                         System.out.println("Process was killed by \"slay\" command.");
                     }
                 }
-                public void kill(){}
             });
             t.setDaemon(true);
             t.start();
@@ -99,8 +94,6 @@ public interface Command extends Callable<Boolean> {
      * @param commands - list of the command to execute
      * @param os - stream where output will be written
      * @param protectStream - protect stream by CloseShieldOutputStream. This is need when you not done with stream
-     * @throws InterruptedException
-     * @throws ExecutionException 
      */
     public static void executeToStream(final List<Command> commands, final OutputStream os, boolean protectStream) throws JCLException{
         ExecutorService exec = Executors.newSingleThreadExecutor();
@@ -122,13 +115,24 @@ public interface Command extends Callable<Boolean> {
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             } catch (ExecutionException ex) {
+                try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new CloseShieldOutputStream(os)))){
+                    if (os != null)
+                    bw.write(ex.getCause().getMessage()+"\n");
+                }catch(IOException e){
+                    System.out.println("Connection was refused.");
+                }
                 System.out.println(ex.getCause().getMessage());
             }
             catch(CancellationException c){
-                        throw new JCLException("Process was killed by \"slay\" command.");
+                        throw new JCLException("Process was killed by \"slay\" command.",c);
                     }
             ActiveCommandsManager.remove(command.getID());
         }
         exec.shutdown();
+    }
+    public static void executeToStream(final Command command, final OutputStream os, boolean protectStream) throws JCLException{
+        ArrayList<Command> list = new ArrayList<>();
+        list.add(command);
+        executeToStream(list, os, protectStream);
     }
 }

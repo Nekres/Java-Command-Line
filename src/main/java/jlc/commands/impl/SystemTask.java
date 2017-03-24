@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import jlc.ProcessOutputReader;
 import jlc.commands.Command;
 import static jlc.commands.impl.AbstractCommand.ENCODING;
+import jlc.exceptions.ProcessKilledException;
 
 /**
  *
@@ -42,7 +43,7 @@ public class SystemTask extends AbstractCommand implements Command{
             public void run() {
                 try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
         ProcessBuilder pb = new ProcessBuilder(task);
-        
+        pb.redirectInput();
         pb.redirectErrorStream(true);
         pb.directory(new File(System.getProperty("user.dir")));
         try {
@@ -63,6 +64,10 @@ public class SystemTask extends AbstractCommand implements Command{
                 bw.write("Error: no such command.\n");
                 bw.flush();
             }
+            catch(ProcessKilledException e){
+                bw.write(task.get(0) + "closing info:\n"+e.getMessage());
+                bw.flush();
+            }
         } finally{
             ActiveCommandsManager.remove(SystemTask.this.getID());
         }
@@ -77,6 +82,7 @@ public class SystemTask extends AbstractCommand implements Command{
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }finally{
+            if (p != null)
             p.destroy();
         }
         return successFinished;

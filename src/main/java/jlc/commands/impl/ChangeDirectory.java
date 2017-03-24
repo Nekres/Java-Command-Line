@@ -8,7 +8,6 @@ package jlc.commands.impl;
 import java.io.File;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
-import jlc.exceptions.JCLException;
 
 /**
  *
@@ -20,10 +19,8 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     public static String NAME = "cd";
     private String arg = "";
     
-    public ChangeDirectory(String[] arg) {
-        for (String a : arg) {
-            this.arg = this.arg.concat(a + " ");
-        }
+    public ChangeDirectory(String arg) {
+        this.arg = arg;
         this.arg = this.arg.trim();
     }
 

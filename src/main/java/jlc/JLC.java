@@ -12,7 +12,7 @@ import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.commands.impl.rm.Who;
-import jlc.commands.impl.rm.Write;
+import jlc.commands.impl.rm.Whisper;
 import jlc.exceptions.JCLException;
 import jlc.parse.CLParser;
 import jlc.parse.impl.JAXBParser;
@@ -59,7 +59,7 @@ public class JLC {
         settings.add(RemoteMode.NAME);
         settings.add(Who.NAME);
         settings.add(Kill.NAME);
-        settings.add(Write.NAME);
+        settings.add(Whisper.NAME);
         
         File logs = new File(options.getLogFilePath());
         if (!logs.exists()) {
