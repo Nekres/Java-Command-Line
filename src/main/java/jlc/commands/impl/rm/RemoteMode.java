@@ -63,7 +63,7 @@ public class RemoteMode extends AbstractCommand implements Command{
                 t.start();
                 }
             } catch (IOException ex) {
-                throw new ProcessKilledException("Remote mode killed.");
+                throw new ProcessKilledException("Remote has been killed.");
             } 
             finally{
             try {
@@ -82,18 +82,25 @@ public class RemoteMode extends AbstractCommand implements Command{
     }
     synchronized public final void destroy(){
         try {
+            if(!server.isClosed())
             server.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    public static final void remoteExecute(final String command, final OutputStream os) throws JCLException{
-        System.out.println(command);
+    public static final void remoteExecute(final String command, final OutputStream os,final EchoThread info) throws JCLException{
             if(command.equals("quit")){
                 System.out.println(TextStyle.colorText("Bye.\nWe'll miss you.",TextStyle.Color.BRIGHT));
                 System.exit(0);
             }
                 List<Command> commandList = CLParser.analyze(jlc.JLC.settings, command);
+                for(Command c: commandList){
+                    if(c.getClass().equals(Whisper.class)){
+                        Whisper w = (Whisper)c;
+                        w.setFrom(info); //name of the one who whispering
+                    }
+                        
+                }
                 Command.executeToStream(commandList,os, true);
                 try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new CloseShieldOutputStream(os)))){
                    bw.write(System.getProperty("user.dir").intern()+":");

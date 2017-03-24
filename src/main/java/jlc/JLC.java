@@ -8,11 +8,11 @@ package jlc;
 import jlc.commands.impl.rm.RemoteMode;
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import javax.xml.bind.JAXBException;
 import jlc.commands.*;
 import jlc.commands.impl.*;
 import jlc.commands.impl.rm.Who;
+import jlc.commands.impl.rm.Write;
 import jlc.exceptions.JCLException;
 import jlc.parse.CLParser;
 import jlc.parse.impl.JAXBParser;
@@ -47,16 +47,20 @@ public class JLC {
             options = Settings.getDefault();
             System.out.println("");
         }
-        settings.add(options.getDir());
-        Dir.NAME = options.getDir(); //Setting up the new name of command, if user modified it
-        settings.add(options.getDirectoryTree());
+        //Setting up the new name of command, if user modified it
+        ChangeDirectory.NAME = options.getChangeDirectory();
+        Dir.NAME = options.getDir();
         DirectoryTree.NAME = options.getDirectoryTree();
+        //adding my commands to a command list
+        settings.add(options.getDir());
+        settings.add(options.getDirectoryTree());
         settings.add(options.getChangeDirectory());
         settings.add(ActiveCommandsManager.NAME);
         settings.add(RemoteMode.NAME);
         settings.add(Who.NAME);
         settings.add(Kill.NAME);
-        ChangeDirectory.NAME = options.getChangeDirectory();
+        settings.add(Write.NAME);
+        
         File logs = new File(options.getLogFilePath());
         if (!logs.exists()) {
             if (!logs.mkdirs()) {

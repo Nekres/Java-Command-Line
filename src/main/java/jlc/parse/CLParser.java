@@ -5,18 +5,14 @@
  */
 package jlc.parse;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.xml.bind.JAXBException;
 import jlc.CommandWrapper;
-import jlc.Settings;
 import jlc.commands.Command;
 import jlc.commands.CommandFactory;
 import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.NoSuchCommandException;
-import jlc.parse.impl.JAXBParser;
 
 /**
  *
@@ -79,6 +75,7 @@ public class CLParser {
         CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
+            System.out.println(splitter);
         }
         list.add(h);
         c = null;
@@ -114,7 +111,10 @@ public class CLParser {
                 word+=input.charAt(i);
             }
         }
+        if(!word.isEmpty()){
         list.add(word);
+        }
+        System.out.println(list.toString());
         return list.toArray(new String[list.size()]);
     }
 }
