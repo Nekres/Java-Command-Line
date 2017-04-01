@@ -5,8 +5,11 @@
  */
 package jlc.commands.impl;
 
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import jlc.commands.Command;
+import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 
 /**
@@ -19,14 +22,27 @@ public abstract class AbstractCommand implements Command{
     protected String currentDir = System.getProperty("user.dir");
     protected static int INSTANCE_ID = 0;
     protected final int id = INSTANCE_ID++;
-    protected OutputStream currentOutput = DEFAULT_OUTPUT;
+    protected OutputStream currentOutputStream = DEFAULT_OUTPUT;
+    protected PrintStream currentErrStream = System.err;
+    protected InputStream currentInputStream = new CloseShieldInputStream(System.in);
     protected String delim;
     
     
     @Override
-    public void setOutputPath(OutputStream path){
-        currentOutput = path;
+    public void setOutputStream(OutputStream path){
+        currentOutputStream = path;
     }
+    
+    @Override
+    public void setErrStream(PrintStream err) {
+        this.currentErrStream = err;
+    }
+
+    @Override
+    public void setInputStream(InputStream in) {
+        this.currentInputStream = in;
+    }
+    
     /**
      * @return - returns a logical separator "and" or "or"
      */

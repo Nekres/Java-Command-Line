@@ -21,6 +21,7 @@ import jlc.view.TextStyle;
  * @author desolation
  */
 public class ActiveCommandsManager extends AbstractCommand implements Command {
+    
     public static final String NAME = "jobs";
     public static final Map<Integer, Task<Boolean>> ACTIVE_TASK_LIST = new HashMap<>();
     
@@ -44,7 +45,7 @@ public class ActiveCommandsManager extends AbstractCommand implements Command {
     }
     @Override
     public Boolean call() throws Exception {
-            try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING)))){
+            try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutputStream,Charset.forName(ENCODING)))){
             if (!ACTIVE_TASK_LIST.isEmpty()) {
                 bw.write("+Name\t\tID+");
                 bw.newLine();

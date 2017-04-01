@@ -15,10 +15,10 @@ import jlc.exceptions.ProcessKilledException;
  *
  * @author desolation
  */
-public class Kill extends AbstractCommand implements Command{
+public class Slay extends AbstractCommand implements Command{
     public static final String NAME = "slay";
     private final int id;
-    public Kill(final int id){
+    public Slay(final int id){
         this.id = id;
     }
     @Override

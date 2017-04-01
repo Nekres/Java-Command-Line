@@ -5,6 +5,7 @@
  */
 package jlc.commands;
 
+import jlc.commands.impl.sys.SystemTask;
 import jlc.commands.impl.rm.RemoteMode;
 import java.util.concurrent.ThreadFactory;
 import jlc.commands.impl.*;
@@ -58,11 +59,11 @@ public class CommandFactory implements ThreadFactory {
             }
             throw new BadCommandArgumentException();
         }
-        if (command.equals(Kill.NAME)){
+        if (command.equals(Slay.NAME)){
             if (arg.length == 1){
                 try{
                 int a = Integer.parseInt(arg[0]);
-                return new Kill(a);
+                return new Slay(a);
                 }catch(NumberFormatException nfx){
                     BadCommandArgumentException bca = new BadCommandArgumentException("ID of the command must be a number. Look for id of process you need by \"jobs\"", nfx);
                     throw bca;

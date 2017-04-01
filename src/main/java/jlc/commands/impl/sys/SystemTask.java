@@ -3,14 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jlc.commands.impl;
+package jlc.commands.impl.sys;
 
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import jlc.ProcessOutputReader;
 import jlc.commands.Command;
-import static jlc.commands.impl.AbstractCommand.ENCODING;
+import jlc.commands.impl.AbstractCommand;
+import jlc.commands.impl.ActiveCommandsManager;
+import jlc.commands.impl.rm.EchoThread;
 import jlc.exceptions.ProcessKilledException;
 
 /**
@@ -41,15 +42,14 @@ public class SystemTask extends AbstractCommand implements Command{
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
-                try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
+                try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutputStream,Charset.forName(ENCODING))))){
         ProcessBuilder pb = new ProcessBuilder(task);
-        pb.redirectInput();
         pb.redirectErrorStream(true);
         pb.directory(new File(System.getProperty("user.dir")));
         try {
             try {
                 p = pb.start();
-                ProcessOutputReader por = new ProcessOutputReader(p.getInputStream(), currentOutput);
+                ProcessIORedirector por = ProcessIORedirector.newBuilder().setProcessInput(p.getInputStream()).setTargetOutput(currentOutputStream).build();
                 por.run();
                 p.waitFor();
             } catch (InterruptedException ex) {

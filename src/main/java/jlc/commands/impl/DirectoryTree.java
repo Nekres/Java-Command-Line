@@ -67,7 +67,7 @@ public class DirectoryTree extends AbstractCommand implements Command {
     @Override
     public Boolean call() throws Exception {
         try {
-            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput, Charset.forName(ENCODING))))){
+            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutputStream, Charset.forName(ENCODING))))){
             List<File> list = Arrays.asList(new File(System.getProperty("user.dir") + System.getProperty("file.separator")));
             check(list, bw);
             String summary = "Summary:" + this.summary + ", directories:"

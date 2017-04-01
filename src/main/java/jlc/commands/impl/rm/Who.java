@@ -22,7 +22,7 @@ public class Who extends AbstractCommand implements Command{
 
     @Override
     public Boolean call() throws Exception {
-        try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING)))){
+        try(BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(currentOutputStream,Charset.forName(ENCODING)))){
             if(RemoteMode.CLIENT_LIST.isEmpty())
                 bw.write(TextStyle.colorText("No clients connected.\n", TextStyle.Color.RED));
             else

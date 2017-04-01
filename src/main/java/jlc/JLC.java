@@ -58,7 +58,7 @@ public class JLC {
         settings.add(ActiveCommandsManager.NAME);
         settings.add(RemoteMode.NAME);
         settings.add(Who.NAME);
-        settings.add(Kill.NAME);
+        settings.add(Slay.NAME);
         settings.add(Whisper.NAME);
         
         File logs = new File(options.getLogFilePath());

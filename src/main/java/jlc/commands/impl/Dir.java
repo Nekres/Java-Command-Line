@@ -43,7 +43,7 @@ public class Dir extends AbstractCommand implements Command{
     @Override
     public Boolean call() throws Exception {
         try{
-            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutput,Charset.forName(ENCODING))))){
+            try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutputStream,Charset.forName(ENCODING))))){
             File file = new File(System.getProperty("user.dir"));
         if (file.isDirectory()){
             if (arg != null){

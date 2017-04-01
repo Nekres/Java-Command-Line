@@ -23,9 +23,11 @@ public interface Command extends Callable<Boolean> {
     
     String getSeparator();
     /**
-     * @param path - stream where you redirecting sysout of command
+     * @param out - stream where you redirecting sysout of command
      */
-    void setOutputPath(OutputStream path);
+    void setOutputStream(OutputStream out);
+    void setErrStream(PrintStream err);
+    void setInputStream(InputStream in);
 
     int getID();
     /**
@@ -60,7 +62,7 @@ public interface Command extends Callable<Boolean> {
                             File logFile = new File(logFilePath + DIRECTORY_SEPARATOR+"logs"+DIRECTORY_SEPARATOR + c.getName().toUpperCase() + DIRECTORY_SEPARATOR + new Date().toString().replace(':', '.') + c.toString() + ".txt");
                             logFile.createNewFile();
                             try(FileOutputStream fos = new FileOutputStream(logFile)){
-                            c.setOutputPath(fos);
+                            c.setOutputStream(fos);
                             Future<Boolean> result = exec.submit((Callable)c);
                             ActiveCommandsManager.add(c,c.getID(),result);
                             if(!result.get().booleanValue()){
@@ -99,9 +101,9 @@ public interface Command extends Callable<Boolean> {
         ExecutorService exec = Executors.newSingleThreadExecutor();
         for(Command command : commands){
             if (protectStream) {
-                command.setOutputPath(new CloseShieldOutputStream(os));
+                command.setOutputStream(new CloseShieldOutputStream(os));
             } else {
-                command.setOutputPath(os);
+                command.setOutputStream(os);
             }
             Future<Boolean> result = exec.submit((Callable)command);
             ActiveCommandsManager.add(command,command.getID(),result);
@@ -121,7 +123,6 @@ public interface Command extends Callable<Boolean> {
                 }catch(IOException e){
                     System.out.println("Connection was refused.");
                 }
-                System.out.println(ex.getCause().getMessage());
             }
             catch(CancellationException c){
                         throw new JCLException("Process was killed by \"slay\" command.",c);
