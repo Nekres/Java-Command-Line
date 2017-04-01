@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlType;
 import jlc.parse.impl.JAXBParser;
 
 /**
- *
+ * Class that represents list of settings which defined in settings.xml(user chooses filename).
  * @author desolation
  */
 @XmlRootElement
@@ -97,7 +97,6 @@ public class Settings {
         this.supportedCommands = supportedCommands;
     }
     /**
-     * 
      * @param file file where to save default settings
      * @throws JAXBException 
      */

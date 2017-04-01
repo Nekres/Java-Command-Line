@@ -68,6 +68,8 @@ public class CLParser {
         }
         for (CommandWrapper h : commands) {
             Command cmd = CommandFactory.createCommand(h.command, h.arg);
+            if(h.next != null)
+            cmd.setSeparator(h.next);
             result.add(cmd);
         }
         return result;
@@ -83,7 +85,7 @@ public class CLParser {
         c = null;
     }
     /**
-     * Splites user input to array.
+     * Splites user input to array of divided params.
      * @param input - user input to split
      * @return splited input separated by quotes and spaces
      */

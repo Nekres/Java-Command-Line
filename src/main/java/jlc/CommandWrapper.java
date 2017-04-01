@@ -8,19 +8,25 @@ package jlc;
 import java.util.Arrays;
 
 /**
- *
+ * CommandWrapper represents simple tuple of command and its arguments
  * @author desolation
  */
 public class CommandWrapper {
     public final String command;
     public final String[] arg;
-    private String next;
-
+    public String next;
+    /**
+     * Creates a new tuple
+     * @param command - command
+     * @param arg - args
+     */
     public CommandWrapper(String command, String[] arg) {
         this.command = command;
         this.arg = arg;
     }
-
+    /**
+     * @return 
+     */
     public String getNext() {
         return next;
     }
