@@ -11,7 +11,7 @@ import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
 /**
- *
+ * <code>ChangeDirectory. class</code> represents implementation of program that allows to switch between directories.
  * @author desolation
  */
 public class ChangeDirectory extends AbstractCommand implements Command {
@@ -19,7 +19,10 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     private static final String RETURN = "..";
     public static String NAME = "cd";
     private String arg = "";
-    
+    /**
+     * Constructor
+     * @param arg directory name to switch
+     */
     public ChangeDirectory(String arg) {
         this.arg = arg;
         this.arg = this.arg.trim();
@@ -32,11 +35,25 @@ public class ChangeDirectory extends AbstractCommand implements Command {
     public String getName() {
         return NAME;
     }
-
+    /**
+     * All what this method does is just sets new "user.dir" property and return true in case of success. 
+     * @return true if executing was without errors.
+     * @throws BadCommandArgumentException 
+     */
     @Override
     public Boolean call() throws BadCommandArgumentException {
         String currentDir = System.getProperty("user.dir");
-        String dat[], result = "";
+        System.setProperty("user.dir",chdir(currentDir));
+        return true; // false if exception 
+    }
+    /**
+     * Making an absolute path with new directory. Generating <code>BadCommandArgumentException</code> if directory not exists.
+     * @param currentDir - directory from where to start
+     * @return String which represents new absolute path
+     * @throws BadCommandArgumentException when argument not found
+     */
+    private String chdir(String currentDir) throws BadCommandArgumentException{
+        String result, dat[];
         if (SPLITTER.equals("\\"))
         dat = currentDir.split(SPLITTER+SPLITTER);
         else dat = currentDir.split(SPLITTER);
@@ -46,24 +63,23 @@ public class ChangeDirectory extends AbstractCommand implements Command {
             } else {
                 result = currentDir.substring(0, currentDir.lastIndexOf(SPLITTER) + 1).intern();
             }
-            System.setProperty("user.dir", result);
-            return true;
+            return result;
         }
         File nextDir = new File(currentDir);
         if (nextDir.listFiles().length != 0) {
             for (File file : nextDir.listFiles()) {
                 if (arg.toLowerCase().equals(file.getName().toLowerCase()) && file.isDirectory() && !file.isHidden()) {
                     if (!currentDir.substring(currentDir.length()-1, currentDir.length()).equals(SPLITTER)) {
-                        System.setProperty("user.dir", currentDir + SPLITTER + file.getName());
+                        result = currentDir + SPLITTER + file.getName();
                     } else {
-                        System.setProperty("user.dir", currentDir + file.getName());
+                        result = currentDir + file.getName();
                     }
-                    return true;
+                    return result;
                 }
             }
         }
         throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
-    }
+    } 
 
     @Override
     public int hashCode() {

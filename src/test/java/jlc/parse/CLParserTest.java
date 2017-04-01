@@ -57,7 +57,7 @@ public class CLParserTest {
         Slay slay = new Slay(20);
         List<Command> expResult = new ArrayList<>();
         expResult.add(cd);
-        //expResult.add(slay);
+        expResult.add(slay);
         List<Command> result = CLParser.analyze(settings, in);
         assertEquals(expResult, result);
     }

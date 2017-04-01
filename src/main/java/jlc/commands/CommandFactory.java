@@ -17,7 +17,7 @@ import jlc.exceptions.BadCommandArgumentException;
  *
  * @author desolation
  */
-public class CommandFactory implements ThreadFactory {
+public class CommandFactory {
     /**
      * Creates one of the specified command by their full name and arrays of arguments. 
      * @param command - Name of command to create. For example ChangeDirectory.NAME;
@@ -91,10 +91,4 @@ public class CommandFactory implements ThreadFactory {
         throw new BadCommandArgumentException();
     }
 
-    @Override
-    public Thread newThread(Runnable r) {
-        Thread t = new Thread(r);
-        t.setDaemon(true);
-        return t;
-    }
 }

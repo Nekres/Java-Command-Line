@@ -31,8 +31,9 @@ public class JLC {
     
     /**
      * Java Command Line allows user to run programs by typing their names.
+     * Example:
+     * ls -l && git status &
      * @param args the command line arguments
-     * @throws java.lang.Exception
      */
     public static void main(String[] args) {
         Settings options = null;
