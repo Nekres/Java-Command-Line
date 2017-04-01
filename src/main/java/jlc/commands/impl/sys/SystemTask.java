@@ -8,6 +8,7 @@ package jlc.commands.impl.sys;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import jlc.commands.Command;
 import jlc.commands.impl.AbstractCommand;
 import jlc.commands.impl.ActiveCommandsManager;
@@ -51,7 +52,8 @@ public class SystemTask extends AbstractCommand implements Command{
                 p = pb.start();
                 ProcessIORedirector por = ProcessIORedirector.newBuilder().setProcessInput(p.getInputStream()).setTargetOutput(currentOutputStream).build();
                 por.run();
-                p.waitFor();
+                if(p.waitFor() != 0)
+                    successFinished = false;
             } catch (InterruptedException ex) {
                 ActiveCommandsManager.remove(SystemTask.this.getID());
                 successFinished = false;
