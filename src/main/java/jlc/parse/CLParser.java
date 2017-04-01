@@ -45,7 +45,7 @@ public class CLParser {
             if ((input[i].intern() == OR || input[i].intern() == AND) && i != 0) {
                 next = true;
                 splitter = input[i];
-                load(commands, c, input, mark + 1, i, splitter);
+                commands.add(load(c, input, mark + 1, i, splitter));
                 found = false;
                 splitter = null;
                 continue;
@@ -57,9 +57,9 @@ public class CLParser {
             }
             if (c != null && i == input.length - 1 && found) {
                 if (!input[input.length - 1].equals("&")) {
-                    load(commands, c, input, mark + 1, input.length, splitter);
+                    commands.add(load(c, input, mark + 1, input.length, splitter));
                 } else {
-                    load(commands, c, input, mark + 1, input.length - 1, splitter);
+                    commands.add(load(c, input, mark + 1, input.length - 1, splitter));
                 }
                 found = false;
                 splitter = null;
@@ -75,21 +75,20 @@ public class CLParser {
         return result;
     }
 
-    private static final void load(List<CommandWrapper> list, String c, String[] input, int from, int to, String splitter) {
+    protected static final CommandWrapper load(String c, String[] input, int from, int to, String splitter) throws BadCommandArgumentException {
         CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
         if (splitter != null) {
             h.setNext(splitter);
             System.out.println(splitter);
         }
-        list.add(h);
-        c = null;
+        return h;
     }
     /**
      * Splites user input to array of divided params.
      * @param input - user input to split
      * @return splited input separated by quotes and spaces
      */
-    private static final String[] parseUserInput(final String input){
+    protected static final String[] parseUserInput(final String input){
         List<String> list = new ArrayList<>();
         String word ="";
         boolean quotesIn = false;

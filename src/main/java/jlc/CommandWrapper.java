@@ -6,6 +6,8 @@
 package jlc;
 
 import java.util.Arrays;
+import java.util.Objects;
+import jlc.exceptions.BadCommandArgumentException;
 
 /**
  * CommandWrapper represents simple tuple of command and its arguments
@@ -25,14 +27,19 @@ public class CommandWrapper {
         this.arg = arg;
     }
     /**
-     * @return 
+     * Sets a logical separator && or || if
+     * @param next 
      */
-    public String getNext() {
-        return next;
-    }
-
-    public void setNext(String next) {
-        this.next = next;
+    public void setNext(String next)throws BadCommandArgumentException {
+        if(next.equals("&&")){
+            this.next = "&&";
+            return;
+        }
+        if(next.equals("||")){
+            this.next = "||";
+            return;
+        }
+        throw new BadCommandArgumentException("Error: must be && or ||, but received: " + next);
     }
     
 
@@ -40,6 +47,40 @@ public class CommandWrapper {
     public String toString() {
         return "Holder{" + "command=" + command + ", arg=" + Arrays.toString(arg) + '}';
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.command);
+        hash = 29 * hash + Arrays.deepHashCode(this.arg);
+        hash = 29 * hash + Objects.hashCode(this.next);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final CommandWrapper other = (CommandWrapper) obj;
+        if (!Objects.equals(this.command, other.command)) {
+            return false;
+        }
+        if (!Objects.equals(this.next, other.next)) {
+            return false;
+        }
+        if (!Arrays.deepEquals(this.arg, other.arg)) {
+            return false;
+        }
+        return true;
+    }
+    
 
     
     

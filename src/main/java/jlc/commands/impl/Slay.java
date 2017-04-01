@@ -8,7 +8,6 @@ package jlc.commands.impl;
 import java.util.Map;
 import jlc.commands.Command;
 import jlc.commands.impl.ActiveCommandsManager.Task;
-import jlc.exceptions.BadCommandArgumentException;
 import jlc.exceptions.ProcessKilledException;
 
 /**
@@ -33,6 +32,31 @@ public class Slay extends AbstractCommand implements Command{
             ActiveCommandsManager.interruptById(id);
         else
             throw new ProcessKilledException("Process with id " + id + " not found.");
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Slay other = (Slay) obj;
+        if (this.id != other.id) {
+            return false;
+        }
         return true;
     }
     

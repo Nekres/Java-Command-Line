@@ -6,6 +6,7 @@
 package jlc.commands.impl;
 
 import java.io.File;
+import java.util.Objects;
 import jlc.commands.Command;
 import jlc.exceptions.BadCommandArgumentException;
 
@@ -62,6 +63,31 @@ public class ChangeDirectory extends AbstractCommand implements Command {
             }
         }
         throw new BadCommandArgumentException("Error: No such directory\"" + arg + "\".");
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.arg);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ChangeDirectory other = (ChangeDirectory) obj;
+        if (!Objects.equals(this.arg, other.arg)) {
+            return false;
+        }
+        return true;
     }
     
 }
