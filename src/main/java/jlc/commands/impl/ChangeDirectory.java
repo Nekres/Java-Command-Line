@@ -52,7 +52,7 @@ public class ChangeDirectory extends AbstractCommand implements Command {
      * @return String which represents new absolute path
      * @throws BadCommandArgumentException when argument not found
      */
-    private String chdir(String currentDir) throws BadCommandArgumentException{
+    public String chdir(String currentDir) throws BadCommandArgumentException{
         String result, dat[];
         if (SPLITTER.equals("\\"))
         dat = currentDir.split(SPLITTER+SPLITTER);
