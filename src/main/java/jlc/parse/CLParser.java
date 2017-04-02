@@ -7,6 +7,7 @@ package jlc.parse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import jlc.CommandWrapper;
 import jlc.commands.Command;
@@ -76,7 +77,10 @@ public class CLParser {
     }
 
     protected static final CommandWrapper load(String c, String[] input, int from, int to, String splitter) throws BadCommandArgumentException {
-        CommandWrapper h = new CommandWrapper(c, Arrays.copyOfRange(input, from, to));
+        String[] arguments = Arrays.copyOfRange(input, from, to);
+        if(arguments.length != 0)
+            arguments = merge(arguments);
+        CommandWrapper h = new CommandWrapper(c, arguments);
         if (splitter != null) {
             h.setNext(splitter);
             System.out.println(splitter);
@@ -118,6 +122,34 @@ public class CLParser {
         list.add(word);
         }
         System.out.println(list.toString());
+        return list.toArray(new String[list.size()]);
+    }
+    /**
+     * Merging two strings if first string has unreadeable character \.
+     * For example, if user wants to switch into directory that has space in it's name, he can use \ before the space.
+     * example to switch into the directory named "home dir":
+     * <code> cd home\ dir</code>
+     * Without \ method will decide that "home" and "dir" are two different arguments;
+     * @param array arguments
+     * @return merged array of arguments
+     */
+    private static final String[] merge(String[] array){
+        String temp = array[0];
+        List<String> list = new ArrayList<>();
+        boolean merge = false;
+        for(String arg : array){
+            if(merge){
+                temp = temp.substring(0,temp.length()-1); //reseting '\' from the end of string
+                temp+=" " + arg;
+                merge = false;
+            }
+            if(arg.endsWith("\\")){
+                merge = true;
+            }else{
+                list.add(temp);
+                temp = "";
+            }
+        }
         return list.toArray(new String[list.size()]);
     }
 }

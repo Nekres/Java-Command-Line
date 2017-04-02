@@ -5,6 +5,7 @@
  */
 package jlc.parse;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import jlc.CommandWrapper;
@@ -104,6 +105,16 @@ public class CLParserTest {
         String[] expResult3 = {"git","commit","-m","\"message and no quote closed"};
         String[] result3 = CLParser.parseUserInput(input3);
         assertArrayEquals(expResult3, result3);
+    }
+    @Test
+    public void testMerge() throws Exception{
+        String[] s = new String[]{"Рабочий\\","стол"};
+        Method m = CLParser.class.getDeclaredMethod("merge",s.getClass());
+        m.setAccessible(true);
+        String[] expResult = new String[]{"Рабочий стол"};
+        String[] result = (String[])m.invoke(null,(Object)s);
+        assertArrayEquals(expResult, result);
+        
     }
     
 }
