@@ -127,7 +127,7 @@ public class CLParser {
     /**
      * Merging two strings if first string has unreadeable character \.
      * For example, if user wants to switch into directory that has space in it's name, he can use \ before the space.
-     * example to switch into the directory named "home dir":
+     * Example: switch into the directory named "home dir":
      * <code> cd home\ dir</code>
      * Without \ method will decide that "home" and "dir" are two different arguments;
      * @param array arguments

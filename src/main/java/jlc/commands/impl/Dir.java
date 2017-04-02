@@ -16,7 +16,7 @@ import java.util.regex.PatternSyntaxException;
 import jlc.exceptions.JCLException;
 
 /**
- *
+ * Implementation of simple command that shows list of files and specific description to each file.
  * @author desolation
  */
 public class Dir extends AbstractCommand implements Command{
@@ -24,50 +24,77 @@ public class Dir extends AbstractCommand implements Command{
     private static final DateFormat DATE = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.MONTH_FIELD, SimpleDateFormat.LONG);
     private String arg;
     static{ DATE.setTimeZone(TimeZone.getTimeZone("UTC"));}
-        
+        /**
+         * Constructor of Dir command to use it later.
+         * @param arg fileFilter. *.xml for example, to find xml-files
+         */
     public Dir(final String arg) {
         this.arg = arg;
     }
     public Dir(){
     }
-    
-    private final void printInfo(final int length, final BufferedWriter bw) throws IOException{
+    /**
+     * Just used for tab
+     * @param length length of the string which will be return
+     * @return String with spaces(nothing else)
+     * @throws IOException 
+     */
+    private final String printInfo(final int length) throws IOException{
         int max = 40;
+        String res = "";
         if(length > max)
-            bw.write(System.lineSeparator());
+            res = System.lineSeparator();
         for(int i = 0; i < max-length;i++){
-            bw.write(" ");
+            res = res + " ";
         }
+        return res;
     }
-
+    /**
+     * Method searching for files into directory and gives back list of files.
+     * @param rootDir - directory which files to get
+     * @return - list of files in this directory
+     * @throws BadCommandArgumentException 
+     */
+    public final List<File> dir(String rootDir) throws BadCommandArgumentException{
+        List<File> result = new ArrayList<>();
+        File root = new File(rootDir);
+        if(root.isDirectory()){
+            if(arg != null){
+                try{
+                    for(File f : root.listFiles(new Filter(arg)))
+                        result.add(f);
+                }catch(PatternSyntaxException psx){
+                    throw new BadCommandArgumentException("Bad argument \"" + arg + "\"",psx);
+                }
+            }else{
+                String[] list = root.list();
+                Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
+                for(File f : root.listFiles())
+                    result.add(f);
+            }
+        }
+        return result;
+    }
+    /**
+     * Invoking dir method and writes to the output which specified by {@link Command#setOutputStream(java.io.OutputStream) setOutputStream}
+     * @return true if and only if method has no exceptions occured while run
+     * @throws Exception 
+     */
     @Override
     public Boolean call() throws Exception {
         try{
             try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutputStream,Charset.forName(ENCODING))))){
             File file = new File(System.getProperty("user.dir"));
-        if (file.isDirectory()){
-            if (arg != null){
-            try{
-                for(File f : file.listFiles(new Filter(arg))) //sort by regex
-                bw.write(f.getName()+"\n");
-            }
-            catch (PatternSyntaxException e){
-                throw new BadCommandArgumentException("Bad argument \"" + arg + "\"");
-            }
-            }
-            else {
                 String[] list = file.list();
                 Arrays.sort(list, String.CASE_INSENSITIVE_ORDER);
-                for (File f : file.listFiles()) {
+                for (File f : dir(file.getAbsolutePath())) {
                     bw.write(f.getName());
-                    printInfo(f.getName().length(),bw);
+                    bw.write(printInfo(f.getName().length()));
                     bw.write(DATE.format(new Date(f.lastModified())));
                     bw.write(System.lineSeparator());
                     bw.flush();
                 }
             }
-        }
-        }
         }catch(JCLException e){
             ActiveCommandsManager.remove(this.getID());
             return false;
