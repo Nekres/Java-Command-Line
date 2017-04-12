@@ -49,7 +49,6 @@ public class ChangeDirectoryTest {
         Boolean expResult = true;
         Boolean result = instance.call();
         assertEquals(expResult, result);
-        System.out.println("End of testing ");
     }
     @Test
     public void testChdir() throws BadCommandArgumentException{

@@ -66,19 +66,5 @@ public class DirTest {
         assertEquals(expResult, result);
         System.out.println("End of testing ");
     }
-
-    /**
-     * Test of getName method, of class Dir.
-     */
-    @Test
-    public void testGetName() {
-        System.out.println("getName");
-        Dir instance = new Dir();
-        String expResult = "";
-        String result = instance.getName();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
     
 }

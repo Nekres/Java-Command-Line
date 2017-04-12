@@ -22,41 +22,26 @@ import jlc.view.TextStyle;
 public class DirectoryTree extends AbstractCommand implements Command {
     private static final String NEXT = System.lineSeparator().intern();
     public static String NAME = "tree";
-    private int summary = -1; // -1 excluding root of the tree
     private int dirSummary = -1;
-    private String regex;
-    private File root;
 
     public DirectoryTree() {
     }
-    public DirectoryTree(final String regex){
-        this.regex = regex;
-    }
-    public DirectoryTree(final File root, final String regex){
-        this.regex = regex;
-        this.root = root;
-    }
 
-    private final void check(List<File> list, BufferedWriter bw) throws BadCommandArgumentException, IOException {
+    public final List<File> tree(List<File> list) throws BadCommandArgumentException, IOException {
+        List<File> result = new ArrayList<>();
         for (File file : list) {
             if (!Files.isReadable(file.toPath())
                     || Files.isSymbolicLink(FileSystems.getDefault().getPath(file.getAbsolutePath()))) {
                 continue;
             }
-            summary++;
-            bw.write(file.getName());
-            bw.write(NEXT);
-            bw.flush();
+            result.add(file);
             if (file.isDirectory()) {
-                dirSummary++;
                 if (file.listFiles().length != 0 && file.listFiles() != null) {
-                    check(Arrays.asList(file.listFiles()), bw);
-
+                    result.addAll(tree(Arrays.asList(file.listFiles())));
                 }
             }
-            file = null;
         }
-        list = null;
+        return result;
     }
 
     @Override
@@ -65,13 +50,19 @@ public class DirectoryTree extends AbstractCommand implements Command {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Boolean call() throws IOException {
         try {
             try(BufferedWriter bw = new BufferedWriter(new PrintWriter(new OutputStreamWriter(currentOutputStream, Charset.forName(ENCODING))))){
-            List<File> list = Arrays.asList(new File(System.getProperty("user.dir") + System.getProperty("file.separator")));
-            check(list, bw);
-            String summary = "Summary:" + this.summary + ", directories:"
-                    + dirSummary + ", files:" + (this.summary - dirSummary) + NEXT;
+            List<File> root = Arrays.asList(new File(System.getProperty("user.dir") + System.getProperty("file.separator")));
+            List<File> tree = tree(root);
+            for(File f : tree){
+                if(f.isDirectory())
+                    dirSummary++;
+                bw.write(f.getName());
+                bw.newLine();
+            }
+            String summary = "Summary:" + tree.size() + ", directories:"
+                    + dirSummary + ", files:" + (tree.size() - dirSummary) + NEXT;
             bw.write(TextStyle.colorText(summary, TextStyle.Color.CYAN));
         }
             ActiveCommandsManager.remove(this.getID());
